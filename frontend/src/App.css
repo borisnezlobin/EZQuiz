@@ -2,7 +2,7 @@
   opacity: 0;
   animation: glow;
   animation-duration: 1s;
-  animation-delay: 2.5s;
+  animation-delay: 3s;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   transition: 1s;
@@ -20,21 +20,48 @@
   }
 }
 
-.ezquiz {
-  pointer-events: none;
-  font-weight: bold;
+.ban {
+  z-index: 1939;
   position: absolute;
-  opacity: 1;
-  animation: load;
-  animation-duration: 1s;
-  animation-delay: 1.5s;
+  pointer-events: all;
+  animation: cover;
+  animation-delay: 4s;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
-  transition: 1s;
-  font-size: 10em;
+  text-align: center;
+  align-items: center;
+  min-width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding-top: 25vh;
+  border: 0;
+  transition: 1s all ease;
 }
 
-@keyframes load {
+@keyframes cover {
+  from {
+    pointer-events: all;
+  }
+
+  to {
+    pointer-events: none;
+  }
+}
+
+.ezquiz {
+  position: absolute;
+  pointer-events: none;
+  opacity: 1;
+  animation: byebye;
+  animation-duration: 1s;
+  animation-delay: 2s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  height: 100%;
+  margin-top: 30vh;
+}
+
+@keyframes byebye {
   from {
     opacity: 1;
   }
@@ -44,9 +71,10 @@
   }
 }
 
-.logo {
-  width: 20vw;
-  height: 20vw;
+.ezquiz img {
+  background-color: transparent;
+  width: 15vw;
+  height: 15vw;
   margin-top: 10vw;
   margin: auto;
   overflow: hidden;
@@ -54,6 +82,10 @@
   opacity: 1;
   filter: brightness(100%);
   transition: .5s ease all;
+  animation: flicker;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
 @keyframes flicker {
@@ -72,4 +104,14 @@
   100% {
     filter: brightness(100%);
   }
+}
+
+#text {
+  color: black;
+  font-size: 7vw;
+  padding-top: 40px;
+  margin: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  height: 2em;
 }

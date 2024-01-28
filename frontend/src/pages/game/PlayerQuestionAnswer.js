@@ -12,6 +12,7 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
                 answer: answerText,
                 roomId: room.id,
                 clientId: player.id,
+                questionId: data.question.id,
             }),
             method: "POST",
             headers: {
@@ -29,20 +30,26 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
             <h1 className="text-4xl">{data.question.question}</h1>
-            <div className="w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
-                <h1 className="text-4xl">Answer {data.username}'s question</h1>
-                <textarea
-                    className="w-full h-32 border-2 border-black rounded-md p-4"
-                    value={answerText}
-                    onChange={(e) => setAnswerText(e.target.value)}
-                />
-            </div>
-            <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={submitAnswer}
-            >
-                Submit
-            </button>
+            {!submitted ? (
+                <>
+                    <div className="w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
+                        <p>Answer {data.username}'s question</p>
+                        <textarea
+                            className="w-full h-32 border-2 border-black rounded-md p-4"
+                            value={answerText}
+                            onChange={(e) => setAnswerText(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={submitAnswer}
+                    >
+                        Submit
+                    </button>
+                </>
+            ) : (
+                <p>Answer submitted!</p>
+            )}
         </div>
     );
 }
