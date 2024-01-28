@@ -58,7 +58,11 @@ const coolBackground = () => {
                         this.vx -= (this.x - mouseX) * 10 / (dist * dist * dist);
                         this.vy -= (this.y - mouseY) * 10 / (dist * dist * dist);
                     }
-                    if (this.vx > 0.15) this.vx = 0.15;
+                    var v = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                    if (v > 0.4) {
+                        this.vx *= .4/v;
+                        this.vy *= .4/v;
+                    }
                     this.x += this.vx;
                     this.y += this.vy;
                 }
@@ -85,7 +89,7 @@ const coolBackground = () => {
                 shootingStarEmittingInterval = 2000,
                 shootingStarLifeTime = 500,
                 maxTrailLength = 300,
-                starBaseRadius = 2,
+                starBaseRadius = 6,
                 shootingStarRadius = 3,
                 paused = false;
         
@@ -139,7 +143,7 @@ const coolBackground = () => {
         }
     }
     return (
-        <canvas id="canvas" width="100%" height="100%" className="absolute -z-1" />
+        <canvas id="canvas" width="100%" height="100%" className="absolute -z-10" />
     )
 }
 
