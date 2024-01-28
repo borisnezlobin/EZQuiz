@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import PlayerStats from "./PlayerStats";
 
 const PlayerQuestionAnswer = ({ room, data, player }) => {
     const [answerText, setAnswerText] = useState("");
@@ -50,6 +51,7 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
             ) : (
                 <p>Answer submitted!</p>
             )}
+            <PlayerStats player={player} />
         </div>
     );
 }

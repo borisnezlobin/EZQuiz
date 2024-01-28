@@ -2,6 +2,7 @@ const createServer = require("https").createServer;
 const WebSocketServer = require("ws").WebSocketServer;
 var express = require('express');
 var router = express.Router();
+import getSimilarities from "./similarity";
 // https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -57,7 +58,7 @@ router.post("/room/join", (req, res) => {
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
     }));
   }
 
@@ -92,12 +93,14 @@ router.post("/submit-question", (req, res) => {
     question: data.question,
     answer: data.answer,
     submittedBy: player.username,
+    questionId: data.questionId,
+    id: randomHex(),
   }
   room.questions.push(question);
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
     }));
   }
   res.status(200).send({ success: true });
@@ -114,11 +117,6 @@ const findQuestionWithId = (room, questionId) => {
   return null;
 }
 
-const gradeQuestionAnswer = (question, answer) => {
-  // call the thingy that uses ai
-  return Math.random() * 1000;
-}
-
 router.post("/next-question", (req, res) => {
   const room = getRoomWithId(req.body.roomId);
   if(!room) return res.status(404).send({ error: "Room not found" });
@@ -130,15 +128,37 @@ router.post("/next-question", (req, res) => {
   room.questionNumber += 1;
   // pop current question from questions list
   room.questions = room.questions.filter((question) => {
+    console.log(question);
     return question.id != room.currentQuestion.id;
   });
+  // TODO: game ended if all questions used up
+  if(room.questions.length == 0){
+    // publish to all players that game has ended
+    if(host.connection){
+      host.connection.send(JSON.stringify({
+        type: "game-end",
+        room: serializableRoom(room),
+      }));
+    }
+    for(var i = 0; i < room.players.length; i++){
+      const player = room.players[i];
+      if(player.connection){
+        player.connection.send(JSON.stringify({
+          type: "game-end",
+          room: serializableRoom(room),
+        }));
+      }
+    }
+    return res.status(200).send({ success: true });
+  }
+
   room.currentQuestion = room.questions[Math.floor(Math.random() * room.questions.length)];
   room.questionAnswers = [];
 
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
     }));
     host.connection.send(JSON.stringify({
       type: "show-question",
@@ -150,6 +170,7 @@ router.post("/next-question", (req, res) => {
   for(var i = 0; i < room.players.length; i++){
     const player = room.players[i];
     if(player.connection){
+      console.log("sending update to " + player.username);
       player.connection.send(JSON.stringify({
         type: "show-question",
         question: room.currentQuestion.question,
@@ -160,7 +181,27 @@ router.post("/next-question", (req, res) => {
 
   res.status(200).send({ success: true });
 });
-  
+
+const serializableRoom = (room) => {
+  return {
+    id: room.id,
+    players: room.players.map((player) => {
+      return {
+        id: player.id,
+        username: player.username,
+        score: player.score,
+        isHost: player.isHost,
+      }
+    }
+    ),
+    questions: room.questions,
+    currentQuestion: room.currentQuestion,
+    questionNumber: room.questionNumber,
+    questionAnswers: room.questionAnswers,
+    createdAt: room.createdAt,
+    host: room.host,
+  };
+};
 
 router.post("/submit-answer", (req, res) => {
   const data = req.body;
@@ -171,19 +212,20 @@ router.post("/submit-answer", (req, res) => {
 
   const question = findQuestionWithId(room, data.questionId);
   if(!question) return res.status(404).send({ error: "Question not found" });
+  console.log("found question " + JSON.stringify(question));
 
   room.questionAnswers.push({
     questionId: question.id,
     answer: data.answer,
-    submittedBy: player.username,
-    scoreReceived: gradeQuestionAnswer(question, data.answer),
+    submittedBy: player.id,
+    scoreReceived: getSimilarities(question.answer, data.answer),
   });
 
   const host = getPlayerWithId(room.id, room.host);
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
     }));
   }
 
@@ -204,10 +246,11 @@ router.post("/show-results", (req, res) => {
     if(!player) continue;
     player.score += answer.scoreReceived;
     if(player.connection){
+      console.log("sending update to " + player.username);
       player.connection.send(JSON.stringify({
         type: "show-results",
-        scoreReceived: answer.scoreReceived,
-        totalScore: player.score,
+        pointsReceived: answer.scoreReceived,
+        totalPoints: player.score,
       }));
     }
   }
@@ -216,7 +259,12 @@ router.post("/show-results", (req, res) => {
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
+    }));
+
+    host.connection.send(JSON.stringify({
+      type: "show-results",
+      room: serializableRoom(room),
     }));
   }
 
@@ -244,7 +292,7 @@ router.post("/start-game", (req, res) => {
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
-      room: room,
+      room: serializableRoom(room),
     }));
     host.connection.send(JSON.stringify({
       type: "show-question",
@@ -297,7 +345,7 @@ router.post('/create-room', (req, res) => {
     room.players.push(player);
     res.status(200).send({
       player: player,
-      room: room,
+      room: serializableRoom(room),
     });
   }
   // rooms[0].createServer();

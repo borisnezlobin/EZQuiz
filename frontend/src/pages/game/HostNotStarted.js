@@ -2,6 +2,7 @@ import { useContext } from "react"
 import { RoomContext, UserContext } from "../../context";
 import { Play } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
+import CoolBackground from "./coolBackground";
 
 const HostNotStartedPage = ({ user, room }) => {
     const nav = useNavigate();
@@ -11,16 +12,17 @@ const HostNotStartedPage = ({ user, room }) => {
 
     return (
         <>
-            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-                <div className="w-1/3 flex flex-row gap-4 justify-start items-center pb-8">
+            <div className="w-full h-full min-w-screen min-h-screen z-10 gap-4 flex flex-col justify-center items-center">
+                {/* <CoolBackground /> */}
+                <div className="flex flex-row gap-4 justify-start items-center pb-8">
                     <h1 className="">{room.id}</h1>
-                    <p>{room.questions.length} Question{room.questions.length == 1 ? "" : "s"} Submitted</p>
+                    <p className="code">{room.questions.length} Question{room.questions.length == 1 ? "" : "s"} Submitted</p>
                 </div>
                 {numPlayers > 0 ? <hr className="w-2/3" /> : <></>}
-                <p className="flex flex-wrap px-16 mt-4 gap-4">
+                <p className="flex flex-wrap px-16 mt-4 gap-8">
                     {room.players.map((player) => {
                         if(player.isHost) return;
-                        return <span>{player.username}</span>
+                        return <span className="border border-gray-500 rounded-lg px-4 py-2">{player.username}</span>
                     })}
                 </p>
             </div>

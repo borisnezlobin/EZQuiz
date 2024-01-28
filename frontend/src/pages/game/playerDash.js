@@ -46,6 +46,7 @@ const PlayerDash = ({ client }) => {
                 // maybe unnecessary
             }
             if(data.type == "show-question"){
+                console.log("showing question!");
                 setCurrentState(GameState.SHOW_QUESTION);
                 setStateData(data);
                 // question, username
@@ -53,6 +54,7 @@ const PlayerDash = ({ client }) => {
                 // host: show question
             }
             if(data.type == "show-results"){
+                console.log("showing results!");
                 setCurrentState(GameState.SHOW_RESULTS);
                 setStateData(data);
                 // points given, rank
@@ -76,11 +78,11 @@ const PlayerDash = ({ client }) => {
     }
 
     if(currentState == GameState.SHOW_RESULTS){
-        return <PlayerResultsPage player={stateData} user={user} room={room} />
+        return <PlayerResultsPage data={stateData} player={user} room={room} />
     }
 
     if(currentState == GameState.GAME_END){
-        return <PlayerEndGamePage player={stateData} user={user} room={room} />
+        return <PlayerEndGamePage data={stateData} player={user} room={room} />
     }
 };
 
