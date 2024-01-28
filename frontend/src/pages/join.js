@@ -75,10 +75,17 @@ const JoinPage = () => {
                 <p className="text-red-800">
                     {error}
                 </p>
+
                 <button onClick={findRoomWithId} disabled={loading}>
-                    Next
+                    Back
                     {loading ? <CircleNotch className="animate-spin" /> : <ArrowRight />}
                 </button>
+
+                <button onClick={findRoomWithId} disabled={loading}>
+                    Next
+                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowLeft />}
+                </button>
+
             </>
             :
             <>

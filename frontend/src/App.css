@@ -58,7 +58,9 @@
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   height: 100%;
-  margin-top: 30vh;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
 }
 
 @keyframes byebye {
@@ -73,10 +75,8 @@
 
 .ezquiz img {
   background-color: transparent;
-  width: 15vw;
-  height: 15vw;
-  margin-top: 10vw;
-  margin: auto;
+  width: 45vw;
+  height: 45vw;
   overflow: hidden;
   white-space: nowrap;
   opacity: 1;
@@ -108,9 +108,8 @@
 
 #text {
   color: black;
-  font-size: 7vw;
+  font-size: 3.5vw;
   padding-top: 40px;
-  margin: auto;
   overflow: hidden;
   white-space: nowrap;
   height: 2em;

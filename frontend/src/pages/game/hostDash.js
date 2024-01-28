@@ -8,6 +8,7 @@ import GameState from "./enum";
 import HostNotStartedPage from "./HostNotStarted";
 import HostQuestionAnswer from "./HostQuestionAnswer";
 import HostShowResults from "./HostShowResults";
+import HostEndGame from "./HostEndGame";
 
 const HostDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -52,6 +53,7 @@ const HostDash = ({ client }) => {
                 // maybe unnecessary
             }
             if(data.type == "show-question"){
+                console.log("showing question!");
                 setCurrentState(GameState.SHOW_QUESTION);
                 setStateData(data);
                 // question, username
@@ -83,6 +85,10 @@ const HostDash = ({ client }) => {
 
     if(currentState == GameState.SHOW_RESULTS){
         return <HostShowResults player={user} room={room} data={stateData} />
+    }
+
+    if(currentState == GameState.GAME_END){
+        return <HostEndGame player={user} room={room} data={stateData} />
     }
 }
 

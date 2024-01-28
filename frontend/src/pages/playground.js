@@ -9,12 +9,9 @@ import { v4 } from "uuid";
 const Playground = () => {
     var mouseX, mouseY;
     var mass = 10;
-    window.onload = function (){
-        setInterval(start ,200);
-    }
     function randomFloat(min, max)
     {
-    return Math.random() * (max - min) + min;
+        return Math.random() * (max - min) + min;
     }
 
     var mouseDown = true;
@@ -43,13 +40,87 @@ const Playground = () => {
     }
 
     
+    // function start() {
+    //     function lineToAngle(x1, y1, length, radians) {
+    //         var x2 = x1 + length * Math.cos(radians),
+    //             y2 = y1 + length * Math.sin(radians);
+    //         return { x: x2, y: y2 };
+    //     }
+    //     addMass();
+    //     function randomRange(min, max) {
+    //         return min + Math.random() * (max - min);
+    //     }
+    
+    //     function degreesToRads(degrees) {
+    //         return degrees / 180 * Math.PI;
+    //     }
+    
+    //     //Particle
+    //     var particle = {
+    //         x: 0,
+    //         y: 0,
+    //         vx: 0,
+    //         vy: 0,
+    //         radius: 0,
+    
+    //         create: function(x, y, speed, direction) {
+    //             var obj = Object.create(this);
+    //             obj.errorRange = randomFloat(-1,1);
+    //             obj.x = x;
+    //             obj.y = y;
+    //             obj.vx = Math.cos(direction) * speed;
+    //             obj.vy = Math.sin(direction) * speed;
+    //             obj.speed = speed;
+    //             return obj;
+    //         },
+    
+    //         getSpeed: function() {
+    //             return Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    //         },
+    
+    //         setSpeed: function(speed) {
+    //             var heading = this.getHeading();
+    //         this.vx = Math.cos(heading) * speed;
+    //         this.vy = Math.sin(heading) * speed;
+    //         },
+    
+    //         getHeading: function() {
+    //             return Math.atan2(this.vy, this.vx);
+    //         },
+    
+    //         setHeading: function(heading) {
+    //             // var speed = this.getSpeed();
+    //             var speed = randomFloat(0.2,0.7);
+    //             this.vx = Math.cos(heading) * speed;
+    //             this.vy = Math.sin(heading) * speed;
+    //         },
+    
+    //         update: function() {
+    //             var dy = (this.y - mouseY);
+    //             var dx = (this.x - mouseX);
+    //             var dist = Math.sqrt(dy*dy+dx*dx);
+    //             var speed = randomFloat(0.2,0.7);
+    //             if (dist != 0 && mouseDown) {
+    //                 if (dy != 0 && dx != 0 && Math.cos(dy/dx) != NaN){
+    //                     this.vx += Math.cos(Math.atan(dy/dx)) * mass/(dist*dist);
+    //                     this.vy += Math.sin(Math.atan(dy/dx)) * mass/(dist*dist);
+    //                     // this.vy += Math.sin(Math.atan(dy/dx)-this.errorRange) * speed;
+    //                 }
+    //             } 
+    //             this.x += this.vx;
+    //             this.y += this.vy;
+    //             console.log("moving");
+    //         }
+    //     };
     function start() {
+
+        //Helpers
         function lineToAngle(x1, y1, length, radians) {
             var x2 = x1 + length * Math.cos(radians),
                 y2 = y1 + length * Math.sin(radians);
             return { x: x2, y: y2 };
         }
-        addMass();
+    
         function randomRange(min, max) {
             return min + Math.random() * (max - min);
         }
@@ -68,12 +139,10 @@ const Playground = () => {
     
             create: function(x, y, speed, direction) {
                 var obj = Object.create(this);
-                obj.errorRange = randomFloat(-1,1);
                 obj.x = x;
                 obj.y = y;
                 obj.vx = Math.cos(direction) * speed;
                 obj.vy = Math.sin(direction) * speed;
-                obj.speed = speed;
                 return obj;
             },
     
@@ -83,8 +152,8 @@ const Playground = () => {
     
             setSpeed: function(speed) {
                 var heading = this.getHeading();
-            this.vx = Math.cos(heading) * speed;
-            this.vy = Math.sin(heading) * speed;
+                this.vx = Math.cos(heading) * speed;
+                this.vy = Math.sin(heading) * speed;
             },
     
             getHeading: function() {
@@ -92,27 +161,14 @@ const Playground = () => {
             },
     
             setHeading: function(heading) {
-                // var speed = this.getSpeed();
-                var speed = randomFloat(0.2,0.7);
+                var speed = this.getSpeed();
                 this.vx = Math.cos(heading) * speed;
                 this.vy = Math.sin(heading) * speed;
             },
     
             update: function() {
-                var dy = (this.y - mouseY);
-                var dx = (this.x - mouseX);
-                var dist = Math.sqrt(dy*dy+dx*dx);
-                var speed = randomFloat(0.2,0.7);
-                if (dist != 0 && mouseDown) {
-                    if (dy != 0 && dx != 0 && Math.cos(dy/dx) != NaN){
-                        this.vx += Math.cos(Math.atan(dy/dx)) * mass/(dist*dist);
-                        this.vy += Math.sin(Math.atan(dy/dx)) * mass/(dist*dist);
-                        // this.vy += Math.sin(Math.atan(dy/dx)-this.errorRange) * speed;
-                    }
-                } 
                 this.x += this.vx;
                 this.y += this.vy;
-                console.log("moving");
             }
         };
     
@@ -287,14 +343,6 @@ const Playground = () => {
             if (paused) return;
             createShootingStar();
         }, shootingStarEmittingInterval);
-    
-        window.onfocus = function () {
-          paused = false;
-        };
-    
-        window.onblur = function () {
-          paused = true;
-        };
     
     }
     return (

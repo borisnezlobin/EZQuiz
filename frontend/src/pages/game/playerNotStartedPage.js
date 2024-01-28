@@ -1,18 +1,15 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import "../../playground.css";
-import CoolBackground from "./coolBackground";
 import { v4 } from "uuid";
 
 const PlayerNotStartedPage = ({ user, room }) => {
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
-    
-    
+
     return (
         <div>
-            <CoolBackground/>
-            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center" style = {{position:"absolute", zIndex:"69420", textAlign: "center"}}>
+            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center" style={{ position: "absolute", zIndex: "69420", textAlign: "center" }}>
                 <h1 className="">{user.username}</h1>
                 <p>See your name on the screen?<br />The game will get started soon!</p>
 
