@@ -1,3 +1,5 @@
+const createServer = require("https").createServer;
+const WebSocketServer = require("ws").WebSocketServer;
 var express = require('express');
 var router = express.Router();
 // https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/
@@ -6,10 +8,14 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+function onSocketError(err) {
+  console.error(err);
+}
 
 
 const randomHex = () => `${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`.toUpperCase();
 var rooms = [];
+
 
 class Room{
 	constructor(roomN){
@@ -37,12 +43,24 @@ router.post("/room/join", (req, res) => {
 
   const user = {
     id: data.clientId,
-    name: data.username,
-    score: 0 ,
+    username: data.username,
+    score: 0,
+    connection: null,
     isHost: room.host == data.clientId,
   }
+
   
   room.players.push(user);
+
+  // update room for host
+  const host = getPlayerWithId(room.id, room.host);
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
+  }
+
   res.status(200).send(user);
 });
 
@@ -60,7 +78,7 @@ router.get('/room/:id', (req, res) => {
   return res.send(room);
 })
 
-router.use('/create-room', (req, res) => {
+router.post('/create-room', (req, res) => {
   var goAhead = false;
   //creates a room code
   while (!goAhead){
@@ -71,17 +89,64 @@ router.use('/create-room', (req, res) => {
         goAhead = false;
       }
     }
-    if (goAhead) rooms.push({
-      ownerId: req.params,
+    const room = {
       id: newRoomId,
       players: [],
+      questions: [],
       createdAt: Date.now(),
-      host: null // whoever made the request? idk how we are going to identify clients or something
-    });
+      host: req.body.ownerId // whoever made the request? idk how we are going to identify clients or something
+    }
+    if (goAhead) rooms.push(room);
     console.log("created room " + newRoomId);
-    res.send("created room " + newRoomId);
+    const player = {
+      id: req.body.ownerId,
+      username: "host",
+      score: 0,
+      isHost: true,
+      connection: null,
+    }
+    room.players.push(player);
+    res.status(200).send({
+      player: player,
+      room: room,
+    });
   }
   // rooms[0].createServer();
+});
+
+const getPlayerWithId = (roomId, playerId) => {
+  const room = getRoomWithId(roomId);
+  if(!room) return null;
+  for(var i = 0; i < room.players.length; i++){
+    if(room.players[i].id == playerId) return room.players[i];
+  }
+  return null;
+}
+
+const WebSocket = require('ws');
+const wss = new WebSocketServer({ port : '8000'});
+wss.on("connection", socket => {
+  var clientId = "";
+  var roomId = "";
+  socket.on("message", message => {
+    console.log("got message " + message);
+    const data = JSON.parse(message);
+    clientId = data.clientId;
+    roomId = data.roomId;
+    const player = getPlayerWithId(roomId, clientId);
+    const room = getRoomWithId(roomId);
+    console.log(room);
+    console.log(roomId + " " + clientId + " " + player);
+    if(!player) return;
+    if(player.connection == null){
+      player.connection = socket;
+      console.log("assigned connection to player " + clientId + " in room " + roomId);
+    }
+    console.log("processing message based on type...");
+    if(data.type == "submit-answer"){
+      // do something
+    }
+  })
 });
 
 module.exports = router;
