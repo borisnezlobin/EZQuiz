@@ -1,12 +1,12 @@
-import { CircleNotch, Plus } from "@phosphor-icons/react"
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import "../playground.css";
-import { v4 } from "uuid";
+import Playground from "../playground";
+import "../../playground.css";
 
-const Playground = () => {
+const PlayerNotStartedPage = ({ user, room }) => {
+    setTimeout(start, 200);
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
     var mouseX, mouseY;
     var mass = 10;
     function randomFloat(min, max)
@@ -41,12 +41,13 @@ const Playground = () => {
 
     
     function start() {
+        addMass();
         function lineToAngle(x1, y1, length, radians) {
             var x2 = x1 + length * Math.cos(radians),
                 y2 = y1 + length * Math.sin(radians);
             return { x: x2, y: y2 };
         }
-        addMass();
+    
         function randomRange(min, max) {
             return min + Math.random() * (max - min);
         }
@@ -109,7 +110,6 @@ const Playground = () => {
                 } 
                 this.x += this.vx;
                 this.y += this.vy;
-                console.log("moving");
             }
         };
     
@@ -295,24 +295,35 @@ const Playground = () => {
     
     }
     return (
-        // <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center z-10">
-            
-        <canvas id="canvas" width="100%" height="100%" className="absolute z-0 min-h-screen min-w-screen"/>
-            /* <div style = {{position:"absolute", zIndex:"69420", textAlign: "center"}}>
-                <h1 className="">Leaderboards</h1>
-                <p className="mb-24 text-center">Create a game, play with your friends, and answer questions...<br />there are no answer options to save you now!</p>
-                <div className="flex flex-row justify-center items-center gap-2">
-                    <button type="button" className="hover:rotate-4 transition-all duration-100 active:skew-y-[7deg] startBtn bg-blue-700">
-                        Enter Game
-                    </button>
+        <div onLoad = "start()">
+            <canvas id="canvas" width="100%" height="100%" className="absolute z-0 min-h-screen min-w-screen"/>
+            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center" style = {{position:"absolute", zIndex:"69420", textAlign: "center"}}>
+                <h1 className="">{user.username}</h1>
+                <p>See your name on the screen?<br />The game will get started soon!</p>
 
-                    <button type="button"  className="hover:rotate-4 transition-all duration-1000 active:skew-x-[20deg] active:skew-y-[20deg]  startBtn bg-blue-700">
-                        second enter
-                    </button>
-                </div>
-            </div> */
-        // </div>
+                <p className="font-bold text-left w-1/3 mt-8">While you're waiting, submit a question:</p>
+                <input type="text" className="w-1/3" placeholder="Question" value={question} onChange={(e) => setQuestion(e.target.value)} />
+                <input type="text" className="w-1/3" placeholder="Answer" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+                <button onClick={() => {
+                    fetch("http://localhost:9000/submit-question", {
+                        body: JSON.stringify({
+                            question: question,
+                            answer: answer,
+                            clientId: user.id,
+                            roomId: room.id,
+                        }),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                    });
+                    toast.success("Question Submitted!");
+                    setQuestion("");
+                    setAnswer("");
+                }}>
+                    Submit
+                </button>
+            </div>
+        </div>
     )
 }
 
-export default Playground;
+export default PlayerNotStartedPage;

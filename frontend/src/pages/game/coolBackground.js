@@ -1,12 +1,7 @@
-import { CircleNotch, Plus } from "@phosphor-icons/react"
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context";
-import toast from "react-hot-toast";
-import "../playground.css";
+import "../../playground.css";
 import { v4 } from "uuid";
 
-const Playground = () => {
+const CoolBackground = () => {
     var mouseX, mouseY;
     var mass = 10;
     function randomFloat(min, max)
@@ -14,16 +9,15 @@ const Playground = () => {
     return Math.random() * (max - min) + min;
     }
 
-    var mouseDown = true;
-    var realDown = false;
+    var mouseDown = false;
     document.body.onmousedown = function() { 
-        mass += 10;
+        mouseDown = true;
+        mass += 0.01;
         console.log(mass);
-        realDown = true;
       }
 
     document.body.onmouseup = function() {
-        realDown = false;
+        mouseDown = false;
         mass = 10;
     }
 
@@ -32,13 +26,9 @@ const Playground = () => {
         mouseY = e.clientY;
     });
 
-    function addMass(){
-        if (realDown){
-            mass+=1
-            console.log(mass);
-        }
-    }
-
+    window.onload = function() {
+        setTimeout(start, 200);
+    };
     
     function start() {
         function lineToAngle(x1, y1, length, radians) {
@@ -46,7 +36,7 @@ const Playground = () => {
                 y2 = y1 + length * Math.sin(radians);
             return { x: x2, y: y2 };
         }
-        addMass();
+    
         function randomRange(min, max) {
             return min + Math.random() * (max - min);
         }
@@ -100,7 +90,10 @@ const Playground = () => {
                 var dx = (this.x - mouseX);
                 var dist = Math.sqrt(dy*dy+dx*dx);
                 var speed = randomFloat(0.2,0.7);
-                if (dist != 0 && mouseDown) {
+                if (dist == 0){
+                    this.vx = 2;
+                    this.vy = 2;
+                } else if (mouseDown) {
                     if (dy != 0 && dx != 0 && Math.cos(dy/dx) != NaN){
                         this.vx += Math.cos(Math.atan(dy/dx)) * mass/(dist*dist);
                         this.vy += Math.sin(Math.atan(dy/dx)) * mass/(dist*dist);
@@ -109,7 +102,7 @@ const Playground = () => {
                 } 
                 this.x += this.vx;
                 this.y += this.vy;
-                console.log("moving");
+                
             }
         };
     
@@ -295,24 +288,8 @@ const Playground = () => {
     
     }
     return (
-        // <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center z-10">
-            
-        <canvas id="canvas" width="100%" height="100%" className="absolute z-0 min-h-screen min-w-screen"/>
-            /* <div style = {{position:"absolute", zIndex:"69420", textAlign: "center"}}>
-                <h1 className="">Leaderboards</h1>
-                <p className="mb-24 text-center">Create a game, play with your friends, and answer questions...<br />there are no answer options to save you now!</p>
-                <div className="flex flex-row justify-center items-center gap-2">
-                    <button type="button" className="hover:rotate-4 transition-all duration-100 active:skew-y-[7deg] startBtn bg-blue-700">
-                        Enter Game
-                    </button>
-
-                    <button type="button"  className="hover:rotate-4 transition-all duration-1000 active:skew-x-[20deg] active:skew-y-[20deg]  startBtn bg-blue-700">
-                        second enter
-                    </button>
-                </div>
-            </div> */
-        // </div>
+        <canvas id="canvas" width="100%" height="100%" className="absolute z-0" />
     )
 }
 
-export default Playground;
+export default CoolBackground;

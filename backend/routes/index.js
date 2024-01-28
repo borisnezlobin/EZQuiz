@@ -61,7 +61,10 @@ router.post("/room/join", (req, res) => {
     }));
   }
 
-  res.status(200).send(user);
+  res.status(200).send({
+    user: user,
+    room: { id: room.id }
+  });
 });
 
 const getRoomWithId = (id) => {
@@ -77,6 +80,28 @@ router.get('/room/:id', (req, res) => {
   if(!room) return res.status(404).send({ error: "Room not found" });
   return res.send(room);
 })
+
+router.post("/submit-question", (req, res) => {
+  const data = req.body;
+  const room = getRoomWithId(data.roomId);
+  const host = getPlayerWithId(room.id, room.host);
+  if(!room) return res.status(404).send({ error: "Room not found" });
+  const player = getPlayerWithId(room.id, data.clientId);
+  if(!player) return res.status(404).send({ error: "Player not found" });
+  const question = {
+    question: data.question,
+    answer: data.answer,
+    submittedBy: player.username,
+  }
+  room.questions.push(question);
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
+  }
+  res.status(200).send({ success: true });
+});
 
 router.post('/create-room', (req, res) => {
   var goAhead = false;
