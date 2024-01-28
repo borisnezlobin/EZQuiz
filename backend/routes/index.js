@@ -103,6 +103,75 @@ router.post("/submit-question", (req, res) => {
   res.status(200).send({ success: true });
 });
 
+const findQuestionWithId = (roomId, questionId) => {
+  const room = getRoomWithId(roomId);
+  if(!room) return null;
+  for(var i = 0; i < room.questions.length; i++){
+    if(room.questions[i].id == questionId) return room.questions[i];
+  }
+  return null;
+}
+
+const gradeQuestionAnswer = (question, answer) => {
+  // call the thingy that uses ai
+}
+
+router.post("/submit-answer", (req, res) => {
+  const data = req.body;
+  const room = getRoomWithId(data.roomId);
+  if(!room) return res.status(404).send({ error: "Room not found" });
+  const player = getPlayerWithId(room.id, data.clientId);
+  if(!player) return res.status(404).send({ error: "Player not found" });
+
+  const question = findQuestionWithId(room.id, data.questionId);
+  if(!question) return res.status(404).send({ error: "Question not found" });
+
+  room.questionAnswers.push({
+    questionId: question.id,
+    answer: data.question.question,
+    submittedBy: player.username,
+    scoreReceived: gradeQuestionAnswer(question, data.answer),
+  })
+});
+
+router.post("/start-game", (req, res) => {
+  const data = req.body;
+  const room = getRoomWithId(data.roomId);
+  if(!room) return res.status(404).send({ error: "Room not found" });
+  console.log("starting game in room " + room.id);
+  const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(404).send({ error: "Host not found" });
+
+  // to start the game we need to:
+    // just pick a random question
+    // set it to the current one
+    // remove from the questions list
+    // do the flow?
+  const question = room.questions[Math.floor(Math.random() * room.questions.length)];
+  room.currentQuestion = question;
+  room.questionNumber = 1;
+  room.questions = room.questions.filter((q) => q.id != question.id);
+  room.questionAnswers = [];
+  console.log("first question is " + question.question.question);
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "show-question",
+      question: question.question,
+      username: question.submittedBy,
+    }));
+  }
+  for(var i = 0; i < room.players.length; i++){
+    const player = room.players[i];
+    if(player.connection){
+      player.connection.send(JSON.stringify({
+        type: "show-question",
+        question: question.question,
+        username: question.submittedBy,
+      }));
+    }
+  }
+});
+
 router.post('/create-room', (req, res) => {
   var goAhead = false;
   //creates a room code
@@ -118,6 +187,9 @@ router.post('/create-room', (req, res) => {
       id: newRoomId,
       players: [],
       questions: [],
+      currentQuestion: null,
+      questionNumber: 0,
+      questionAnswers: [],
       createdAt: Date.now(),
       host: req.body.ownerId // whoever made the request? idk how we are going to identify clients or something
     }

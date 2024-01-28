@@ -6,18 +6,18 @@ const CoolBackground = () => {
     var mass = 10;
     function randomFloat(min, max)
     {
-    return Math.random() * (max - min) + min;
+        return Math.random() * (max - min) + min;
     }
 
-    var mouseDown = false;
+    var mouseDown = true;
     document.body.onmousedown = function() { 
-        mouseDown = true;
-        mass += 0.01;
+        // mouseDown = true;
+        mass += 5;
         console.log(mass);
       }
 
     document.body.onmouseup = function() {
-        mouseDown = false;
+        // mouseDown = false;
         mass = 10;
     }
 
@@ -26,9 +26,8 @@ const CoolBackground = () => {
         mouseY = e.clientY;
     });
 
-    window.onload = function() {
-        setTimeout(start, 200);
-    };
+    // clearInterval(start);
+    setTimeout(start, 200);
     
     function start() {
         function lineToAngle(x1, y1, length, radians) {
@@ -143,17 +142,17 @@ const CoolBackground = () => {
             }
         }
     
-        function createShootingStar() {
-            var shootingStar = particle.create(randomRange(width / 2, width), randomRange(0, height / 2), 0, 0);
-            shootingStar.setSpeed(randomRange(shootingStarSpeed.min, shootingStarSpeed.max));
-            shootingStar.setHeading(degreesToRads(starsAngle));
-            shootingStar.radius = shootingStarRadius;
-            shootingStar.opacity = 0;
-            shootingStar.trailLengthDelta = 0;
-            shootingStar.isSpawning = true;
-            shootingStar.isDying = false;
-            shootingStars.push(shootingStar);
-        }
+        // function createShootingStar() {
+        //     var shootingStar = particle.create(randomRange(width / 2, width), randomRange(0, height / 2), 0, 0);
+        //     shootingStar.setSpeed(randomRange(shootingStarSpeed.min, shootingStarSpeed.max));
+        //     shootingStar.setHeading(degreesToRads(starsAngle));
+        //     shootingStar.radius = shootingStarRadius;
+        //     shootingStar.opacity = 0;
+        //     shootingStar.trailLengthDelta = 0;
+        //     shootingStar.isSpawning = true;
+        //     shootingStar.isDying = false;
+        //     shootingStars.push(shootingStar);
+        // }
     
         function killShootingStar(shootingStar) {
             setTimeout(function() {
@@ -273,10 +272,10 @@ const CoolBackground = () => {
         update();
     
         //Shooting stars
-        setInterval(function() {
-            if (paused) return;
-            createShootingStar();
-        }, shootingStarEmittingInterval);
+        // setInterval(function() {
+        //     if (paused) return;
+        //     createShootingStar();
+        // }, shootingStarEmittingInterval);
     
         window.onfocus = function () {
           paused = false;
