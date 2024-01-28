@@ -1,0 +1,4 @@
+name = "connorjerryboris"
+main = "src/worker.js"
+compatibility_date = "2024-01-27"
+workers_dev = true
