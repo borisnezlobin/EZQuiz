@@ -72,15 +72,15 @@ const PlayerDash = ({ client }) => {
     }
 
     if(currentState == GameState.SHOW_QUESTION){
-        return <PlayerQuestionAnswer user={user} room={room} data={stateData} />
+        return <PlayerQuestionAnswer player={user} room={room} data={stateData} />
     }
 
     if(currentState == GameState.SHOW_RESULTS){
-        return <PlayerResultsPage data={stateData} user={user} room={room} />
+        return <PlayerResultsPage player={stateData} user={user} room={room} />
     }
 
     if(currentState == GameState.GAME_END){
-        return <PlayerEndGamePage data={stateData} user={user} room={room} />
+        return <PlayerEndGamePage player={stateData} user={user} room={room} />
     }
 };
 

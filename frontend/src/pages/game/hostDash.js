@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import GameState from "./enum";
 import HostNotStartedPage from "./HostNotStarted";
 import HostQuestionAnswer from "./HostQuestionAnswer";
+import HostShowResults from "./HostShowResults";
 
 const HostDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -77,7 +78,11 @@ const HostDash = ({ client }) => {
     }
 
     if(currentState == GameState.SHOW_QUESTION){
-        return <HostQuestionAnswer user={user} room={room} data={stateData} />
+        return <HostQuestionAnswer player={user} room={room} data={stateData} />
+    }
+
+    if(currentState == GameState.SHOW_RESULTS){
+        return <HostShowResults player={user} room={room} data={stateData} />
     }
 }
 

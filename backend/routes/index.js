@@ -103,18 +103,64 @@ router.post("/submit-question", (req, res) => {
   res.status(200).send({ success: true });
 });
 
-const findQuestionWithId = (roomId, questionId) => {
-  const room = getRoomWithId(roomId);
+const findQuestionWithId = (room, questionId) => {
+  console.log("finding question with id " + questionId);
   if(!room) return null;
+  console.log("room questions are " + JSON.stringify(room.questions));
   for(var i = 0; i < room.questions.length; i++){
-    if(room.questions[i].id == questionId) return room.questions[i];
+    if(room.questions[i].question.id == questionId) return room.questions[i];
+    else console.log("tried to match question " + JSON.stringify(room.questions[i]) + " with " + questionId);
   }
   return null;
 }
 
 const gradeQuestionAnswer = (question, answer) => {
   // call the thingy that uses ai
+  return Math.random() * 1000;
 }
+
+router.post("/next-question", (req, res) => {
+  const room = getRoomWithId(req.body.roomId);
+  if(!room) return res.status(404).send({ error: "Room not found" });
+  const player = getPlayerWithId(room.id, req.body.clientId);
+  if(!player) return res.status(404).send({ error: "Player not found" });
+  const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(404).send({ error: "Host not found" });
+
+  room.questionNumber += 1;
+  // pop current question from questions list
+  room.questions = room.questions.filter((question) => {
+    return question.id != room.currentQuestion.id;
+  });
+  room.currentQuestion = room.questions[Math.floor(Math.random() * room.questions.length)];
+  room.questionAnswers = [];
+
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
+    host.connection.send(JSON.stringify({
+      type: "show-question",
+      question: room.currentQuestion.question,
+      username: room.currentQuestion.submittedBy,
+    }));
+  }
+
+  for(var i = 0; i < room.players.length; i++){
+    const player = room.players[i];
+    if(player.connection){
+      player.connection.send(JSON.stringify({
+        type: "show-question",
+        question: room.currentQuestion.question,
+        username: room.currentQuestion.submittedBy,
+      }));
+    }
+  }
+
+  res.status(200).send({ success: true });
+});
+  
 
 router.post("/submit-answer", (req, res) => {
   const data = req.body;
@@ -123,15 +169,58 @@ router.post("/submit-answer", (req, res) => {
   const player = getPlayerWithId(room.id, data.clientId);
   if(!player) return res.status(404).send({ error: "Player not found" });
 
-  const question = findQuestionWithId(room.id, data.questionId);
+  const question = findQuestionWithId(room, data.questionId);
   if(!question) return res.status(404).send({ error: "Question not found" });
 
   room.questionAnswers.push({
     questionId: question.id,
-    answer: data.question.question,
+    answer: data.answer,
     submittedBy: player.username,
     scoreReceived: gradeQuestionAnswer(question, data.answer),
-  })
+  });
+
+  const host = getPlayerWithId(room.id, room.host);
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
+  }
+
+  res.status(200).send({ success: true });
+});
+
+router.post("/show-results", (req, res) => {
+  const room = getRoomWithId(req.body.roomId);
+  if(!room) return res.status(404).send({ error: "Room not found" });
+  const player = getPlayerWithId(room.id, req.body.clientId);
+  if(!player) return res.status(404).send({ error: "Player not found" });
+  const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(404).send({ error: "Host not found" });
+
+  for(var i = 0; i < room.questionAnswers.length; i++){
+    const answer = room.questionAnswers[i];
+    const player = getPlayerWithId(room.id, answer.submittedBy);
+    if(!player) continue;
+    player.score += answer.scoreReceived;
+    if(player.connection){
+      player.connection.send(JSON.stringify({
+        type: "show-results",
+        scoreReceived: answer.scoreReceived,
+        totalScore: player.score,
+      }));
+    }
+  }
+
+  // update room for host
+  if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
+  }
+
+  res.status(200).send({ success: true });
 });
 
 router.post("/start-game", (req, res) => {
@@ -150,10 +239,13 @@ router.post("/start-game", (req, res) => {
   const question = room.questions[Math.floor(Math.random() * room.questions.length)];
   room.currentQuestion = question;
   room.questionNumber = 1;
-  room.questions = room.questions.filter((q) => q.id != question.id);
   room.questionAnswers = [];
-  console.log("first question is " + question.question.question);
+  console.log("first question is " + JSON.stringify(room.currentQuestion));
   if(host.connection){
+    host.connection.send(JSON.stringify({
+      type: "room-update",
+      room: room,
+    }));
     host.connection.send(JSON.stringify({
       type: "show-question",
       question: question.question,

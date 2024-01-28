@@ -9,26 +9,15 @@ const CoolBackground = () => {
         return Math.random() * (max - min) + min;
     }
 
-    var mouseDown = true;
-    document.body.onmousedown = function() { 
-        // mouseDown = true;
-        mass += 5;
-        console.log(mass);
-      }
-
-    document.body.onmouseup = function() {
-        // mouseDown = false;
-        mass = 10;
-    }
-
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
     });
 
-    // clearInterval(start);
-    setTimeout(start, 200);
-    
+    window.onload = () => {
+        start();
+    };
+
     function start() {
         function lineToAngle(x1, y1, length, radians) {
             var x2 = x1 + length * Math.cos(radians),
@@ -67,38 +56,31 @@ const CoolBackground = () => {
                 return Math.sqrt(this.vx * this.vx + this.vy * this.vy);
             },
     
-            setSpeed: function(speed) {
-                var heading = this.getHeading();
-            this.vx = Math.cos(heading) * speed;
-            this.vy = Math.sin(heading) * speed;
-            },
-    
-            getHeading: function() {
-                return Math.atan2(this.vy, this.vx);
-            },
-    
-            setHeading: function(heading) {
-                // var speed = this.getSpeed();
-                var speed = randomFloat(0.2,0.7);
-                this.vx = Math.cos(heading) * speed;
-                this.vy = Math.sin(heading) * speed;
+            setSpeed: function(speed, direction) {
+                this.vx = Math.cos(direction) * speed;
+                this.vy = Math.sin(direction) * speed;
+                this.basevx = speed*.7;
+                this.basevy = speed*.7;
             },
     
             update: function() {
-                var dy = (this.y - mouseY);
-                var dx = (this.x - mouseX);
+                var dy = (mouseY - this.y);
+                var dx = (mouseX - this.x);
                 var dist = Math.sqrt(dy*dy+dx*dx);
-                var speed = randomFloat(0.2,0.7);
-                if (dist == 0){
-                    this.vx = 2;
-                    this.vy = 2;
-                } else if (mouseDown) {
-                    if (dy != 0 && dx != 0 && Math.cos(dy/dx) != NaN){
-                        this.vx += Math.cos(Math.atan(dy/dx)) * mass/(dist*dist);
-                        this.vy += Math.sin(Math.atan(dy/dx)) * mass/(dist*dist);
-                        // this.vy += Math.sin(Math.atan(dy/dx)-this.errorRange) * speed;
-                    }
-                } 
+                if (dist < 50){
+                    this.vx += Math.sign(dx)*(50-Math.abs(dx))/900;
+                    this.vy += Math.sign(dy)*(50-Math.abs(dy))/900;
+                    if (this.vx > .07)
+                        this.vx = .07;
+                    if (this.vy > .07)
+                        this.vy = .07;
+                }
+                if (dist > 50){
+                    if (this.vx > this.basevx)
+                        this.vx -= 0.001;
+                    if (this.vy > this.basevy)
+                        this.vy -= 0.001;
+                }
                 this.x += this.vx;
                 this.y += this.vy;
                 
@@ -110,25 +92,12 @@ const CoolBackground = () => {
             width = canvas.width = window.innerWidth,
             height = canvas.height = window.innerHeight,
             stars = [],
-            shootingStars = [],
             layers = [
                 { speed: 0.015, scale: 0.2, count: 320 },
                 { speed: 0.03, scale: 0.5, count: 50 },
                 { speed: 0.05, scale: 0.75, count: 30 }
             ],
-            starsAngle = 145,
-            shootingStarSpeed = {
-                min: 15,
-                max: 20
-            },
-            shootingStarOpacityDelta = 0.01,
-            trailLengthDelta = 0.01,
-            shootingStarEmittingInterval = 2000,
-            shootingStarLifeTime = 500,
-            maxTrailLength = 300,
-            starBaseRadius = 3,
-            shootingStarRadius = 3,
-            paused = false;
+            starBaseRadius = 3;
     
         //Create all stars
         for (var j = 0; j < layers.length; j += 1) {
@@ -137,83 +106,31 @@ const CoolBackground = () => {
                 var star = particle.create(randomRange(0, width), randomRange(0, height), 0, 0);
                 star.radius = starBaseRadius * layer.scale;
                 star.setSpeed(layer.speed);
-                star.setHeading(degreesToRads(starsAngle));
                 stars.push(star);
             }
         }
     
-        // function createShootingStar() {
-        //     var shootingStar = particle.create(randomRange(width / 2, width), randomRange(0, height / 2), 0, 0);
-        //     shootingStar.setSpeed(randomRange(shootingStarSpeed.min, shootingStarSpeed.max));
-        //     shootingStar.setHeading(degreesToRads(starsAngle));
-        //     shootingStar.radius = shootingStarRadius;
-        //     shootingStar.opacity = 0;
-        //     shootingStar.trailLengthDelta = 0;
-        //     shootingStar.isSpawning = true;
-        //     shootingStar.isDying = false;
-        //     shootingStars.push(shootingStar);
-        // }
-    
-        function killShootingStar(shootingStar) {
-            setTimeout(function() {
-                shootingStar.isDying = true;
-            }, shootingStarLifeTime);
-        }
-    
         function update() {
-            if (!paused) {
-                context.clearRect(0, 0, width, height);
-                context.fillStyle = "#FFFFFF";
-                context.fillRect(0, 0, width, height);
-                context.fill();
-    
-                for (var i = 0; i < stars.length; i += 1) {
-                    var star = stars[i];
-                    star.update();
-                    drawStar(star);
-                    if (star.x > width) {
-                        star.x = 0;
-                    }
-                    if (star.x < 0) {
-                        star.x = width;
-                    }
-                    if (star.y > height) {
-                        star.y = 0;
-                    }
-                    if (star.y < 0) {
-                        star.y = height;
-                    }
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = "#FFFFFF";
+            context.fillRect(0, 0, width, height);
+            context.fill();
+
+            for (var i = 0; i < stars.length; i += 1) {
+                var star = stars[i];
+                star.update();
+                drawStar(star);
+                if (star.x > width) {
+                    star.x = 0;
                 }
-    
-                for (i = 0; i < shootingStars.length; i += 1) {
-                    var shootingStar = shootingStars[i];
-                    if (shootingStar.isSpawning) {
-                        shootingStar.opacity += shootingStarOpacityDelta;
-                        if (shootingStar.opacity >= 1.0) {
-                            shootingStar.isSpawning = false;
-                            killShootingStar(shootingStar);
-                        }
-                    }
-                    if (shootingStar.isDying) {
-                        shootingStar.opacity -= shootingStarOpacityDelta;
-                        if (shootingStar.opacity <= 0.0) {
-                            shootingStar.isDying = false;
-                            shootingStar.isDead = true;
-                        }
-                    }
-                    shootingStar.trailLengthDelta += trailLengthDelta;
-    
-                    shootingStar.update();
-                    if (shootingStar.opacity > 0.0) {
-                        drawShootingStar(shootingStar);
-                    }
+                if (star.x < 0) {
+                    star.x = width;
                 }
-    
-                //Delete dead shooting shootingStars
-                for (i = shootingStars.length -1; i >= 0 ; i--){
-                    if (shootingStars[i].isDead){
-                        shootingStars.splice(i, 1);
-                    }
+                if (star.y > height) {
+                    star.y = 0;
+                }
+                if (star.y < 0) {
+                    star.y = height;
                 }
             }
             requestAnimationFrame(update);
@@ -226,65 +143,8 @@ const CoolBackground = () => {
             context.fill();
         }
     
-        function drawShootingStar(p) {
-            var x = p.x,
-                y = p.y,
-                currentTrailLength = (maxTrailLength * p.trailLengthDelta),
-                pos = lineToAngle(x, y, -currentTrailLength, p.getHeading());
-    
-            context.fillStyle = "rgba(255, 255, 255, " + p.opacity + ")";
-            // context.beginPath();
-            // context.arc(x, y, p.radius, 0, Math.PI * 2, false);
-            // context.fill();
-            var starLength = 5;
-            context.beginPath();
-            context.moveTo(x - 1, y + 1);
-    
-            context.lineTo(x, y + starLength);
-            context.lineTo(x + 1, y + 1);
-    
-            context.lineTo(x + starLength, y);
-            context.lineTo(x + 1, y - 1);
-    
-            context.lineTo(x, y + 1);
-            context.lineTo(x, y - starLength);
-    
-            context.lineTo(x - 1, y - 1);
-            context.lineTo(x - starLength, y);
-    
-            context.lineTo(x - 1, y + 1);
-            context.lineTo(x - starLength, y);
-    
-            context.closePath();
-            context.fill();
-    
-            //trail
-            context.fillStyle = "rgba(100, 100, 100, " + (p.opacity-0.1) + ")";
-            context.beginPath();
-            context.moveTo(x - 1, y - 1);
-            context.lineTo(pos.x, pos.y);
-            context.lineTo(x + 1, y + 1);
-            context.closePath();
-            context.fill();
-        }
-    
         //Run
         update();
-    
-        //Shooting stars
-        // setInterval(function() {
-        //     if (paused) return;
-        //     createShootingStar();
-        // }, shootingStarEmittingInterval);
-    
-        window.onfocus = function () {
-          paused = false;
-        };
-    
-        window.onblur = function () {
-          paused = true;
-        };
-    
     }
     return (
         <canvas id="canvas" width="100%" height="100%" className="absolute z-0" />
