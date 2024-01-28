@@ -4,6 +4,7 @@ import { v4 } from "uuid";
 import { UserContext } from "../context";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import toast from "react-hot-toast";
 
 const JoinPage = () => {
     const [roomId, setRoomId] = useState("");
@@ -49,12 +50,12 @@ const JoinPage = () => {
         .then(res => res.json())
         .then(res => {
             if(res == null || res.error){
-                setError("Room not found");
+                // setError("Room not found");
+                toast.error("Room not found!");
                 return;
             }
 
             setPage(1);
-            setError("");
         });
         setLoading(false);
     }
