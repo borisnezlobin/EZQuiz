@@ -4,24 +4,26 @@ const use = require('@tensorflow-models/universal-sentence-encoder');
 const fs = require('fs');
 
 var loaded = false;
-var model = use.load();
-model.then((m) => {
-    model = m;
-    loaded = true
-});
 
-function getSimilarities(answer, response){
-    if (loaded == true) {
-        var score = 0;
-        model.embed([answer]).then(embeddings => {
-            const doc1Embedding = embeddings;
-            model.embed([response]).then(responsesEmbeddings => {
-                const similarity = cosineSimilarity(Array.from(doc1Embedding.dataSync()), Array.from(doc2Embedding.dataSync()));
-                score = Math.round(similarity * 1000);
-            });
-        });
-        return score;
+async function getSimilarities(answer, response) {
+    console.log("GETTING similarities between + \"" + answer + "\" and \"" + response + "\"");
+    if (!loaded) {
+        console.log("loading model...");
+        model = await use.load();
+        loaded = true;
+        console.log("model loaded!");
     }
+
+    const embeddings1 = await model.embed([answer]);
+    const embeddings2 = await model.embed([response]);
+
+    const similarity = cosineSimilarity(
+        Array.from(embeddings1.dataSync()),
+        Array.from(embeddings2.dataSync())
+    );
+
+    console.log("similarity: " + similarity);
+    return Math.max(0, Math.round(similarity * 1000));
 }
 
 function cosineSimilarity(a, b) {
@@ -32,3 +34,8 @@ function cosineSimilarity(a, b) {
 }
 
 console.log('complete');
+
+module.exports = {
+    getSimilarities,
+    cosineSimilarity
+}

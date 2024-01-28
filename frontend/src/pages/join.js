@@ -92,16 +92,17 @@ const JoinPage = () => {
                     {error}
                 </p>
 
-                <button onClick={findRoomWithId} disabled={loading}>
-                    Back
-                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowLeft />}
-                </button>
+                <div className="flex flex-row gap-4">
+                    <button onClick={() => nav("/")}>
+                        <ArrowLeft />
+                        Back
+                    </button>
 
-                <button onClick={findRoomWithId} disabled={loading}>
-                    Next
-                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowRight />}
-                </button>
-
+                    <button onClick={findRoomWithId} disabled={loading}>
+                        Next
+                        {loading ? <CircleNotch className="animate-spin" /> : <ArrowRight />}
+                    </button>
+                </div>
             </>
             :
             <>

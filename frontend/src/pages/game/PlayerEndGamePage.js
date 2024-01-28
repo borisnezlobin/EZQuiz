@@ -18,13 +18,13 @@ const getPostfix = (num) => {
 const PlayerEndGamePage = ({ data, room, player }) => {
     const nav = useNavigate();
     const { setRoom } = useContext(RoomContext);
-    const { setUser } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
 
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-            <h1 className="text-4xl">{data.points}</h1>
-            <p className="mt-4">You got {data.rank}{getPostfix(data.rank)} place{data.rank < 3 ? "!" : "."}</p>
-            <p className="text-sm">{data.rank > 5 ? "Better next time?" : "You showed 'em."}</p>
+            <h1 className="text-4xl m-0">{user.score}</h1>
+            <p className="text-sm text-gray-500">points</p>
+            <p className="mt-4">A game well played -- see you next time.</p>
 
 
             <button onClick={() => {

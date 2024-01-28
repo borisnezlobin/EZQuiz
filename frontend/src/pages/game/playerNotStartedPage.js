@@ -23,6 +23,10 @@ const PlayerNotStartedPage = ({ user, room }) => {
                     setAnswer(e.target.value);
                 }} />
                 <button onClick={() => {
+                    if(question.trim() == "" || answer.trim() == ""){
+                        toast.error("Please enter a question and answer");
+                        return;
+                    }
                     fetch("http://localhost:9000/submit-question", {
                         body: JSON.stringify({
                             question: {

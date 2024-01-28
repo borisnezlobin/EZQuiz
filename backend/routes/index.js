@@ -2,7 +2,7 @@ const createServer = require("https").createServer;
 const WebSocketServer = require("ws").WebSocketServer;
 var express = require('express');
 var router = express.Router();
-import getSimilarities from "./similarity";
+const getSimilarities = require("./similarity").getSimilarities;
 // https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -203,7 +203,7 @@ const serializableRoom = (room) => {
   };
 };
 
-router.post("/submit-answer", (req, res) => {
+router.post("/submit-answer", async (req, res) => {
   const data = req.body;
   const room = getRoomWithId(data.roomId);
   if(!room) return res.status(404).send({ error: "Room not found" });
@@ -214,12 +214,15 @@ router.post("/submit-answer", (req, res) => {
   if(!question) return res.status(404).send({ error: "Question not found" });
   console.log("found question " + JSON.stringify(question));
 
-  room.questionAnswers.push({
+  const answer = {
     questionId: question.id,
     answer: data.answer,
     submittedBy: player.id,
-    scoreReceived: getSimilarities(question.answer, data.answer),
-  });
+    scoreReceived: await getSimilarities(question.answer, data.answer),
+  };
+
+  room.questionAnswers.push(answer);
+  console.log("pushed answer " + JSON.stringify(answer) + " to room " + room.id);
 
   const host = getPlayerWithId(room.id, room.host);
   if(host.connection){
