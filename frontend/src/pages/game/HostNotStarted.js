@@ -2,7 +2,6 @@ import { useContext } from "react"
 import { RoomContext, UserContext } from "../../context";
 import { Play } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
-import CoolBackground from "./coolBackground";
 
 const HostNotStartedPage = ({ user, room }) => {
     const nav = useNavigate();
@@ -14,8 +13,9 @@ const HostNotStartedPage = ({ user, room }) => {
         <>
             <div className="w-full h-full min-w-screen min-h-screen z-10 gap-4 flex flex-col justify-center items-center">
                 {/* <CoolBackground /> */}
+                <p className="code w-1/3">ROOM</p>
                 <div className="flex flex-row gap-4 justify-start items-center pb-8">
-                    <h1 className="">{room.id}</h1>
+                    <h1 className="w-64">{room.id}</h1>
                     <p className="code">{room.questions.length} Question{room.questions.length == 1 ? "" : "s"} Submitted</p>
                 </div>
                 {numPlayers > 0 ? <hr className="w-2/3" /> : <></>}
