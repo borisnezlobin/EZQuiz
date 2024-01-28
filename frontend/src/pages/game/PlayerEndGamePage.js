@@ -22,10 +22,7 @@ const PlayerEndGamePage = ({ data, room, player }) => {
 
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-            <h1 className="text-4xl m-0">{user.score}</h1>
-            <p className="text-sm text-gray-500">points</p>
-            <p className="mt-4">A game well played -- see you next time.</p>
-
+            <p className="mt-4">A game well played! See you next time!</p>
 
             <button onClick={() => {
                 setUser(null);
