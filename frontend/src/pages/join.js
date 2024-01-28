@@ -62,6 +62,22 @@ const JoinPage = () => {
         setLoading(false);
     }
 
+    const backHome = () => {
+        setLoading(true);
+        fetch("http://localhost:9000/room/" + roomId)
+        .then(res => res.json())
+        .then(res => {
+            if(res == null || res.error){
+                // setError("Room not found");
+                toast.error("Room not found!");
+                return;
+            }
+
+            setPage(1);
+        });
+        setLoading(false);
+    }
+
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
             {page == 0 ? <>
@@ -78,12 +94,12 @@ const JoinPage = () => {
 
                 <button onClick={findRoomWithId} disabled={loading}>
                     Back
-                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowRight />}
+                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowLeft />}
                 </button>
 
                 <button onClick={findRoomWithId} disabled={loading}>
                     Next
-                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowLeft />}
+                    {loading ? <CircleNotch className="animate-spin" /> : <ArrowRight />}
                 </button>
 
             </>

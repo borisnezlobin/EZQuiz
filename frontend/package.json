@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://borisnezlobin.github.io/gunnhax",
   "dependencies": {
     "@phosphor-icons/react": "^2.0.15",
     "@testing-library/jest-dom": "^5.17.0",
@@ -18,6 +19,8 @@
     "ws": "^8.16.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -43,6 +46,7 @@
   },
   "devDependencies": {
     "@types/websocket": "^1.0.10",
+    "gh-pages": "^6.1.1",
     "tailwindcss": "^3.4.1"
   }
 }
