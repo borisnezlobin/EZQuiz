@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { ArrowRight, CircleNotch } from "@phosphor-icons/react";
 import { v4 } from "uuid";
-import { UserContext } from "../context";
+import { RoomContext, UserContext } from "../context";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
@@ -14,6 +14,7 @@ const JoinPage = () => {
     const [error, setError] = useState("");
 
     const { setUser } = useContext(UserContext);
+    const { setRoom } = useContext(RoomContext);
     const nav = useNavigate();
 
     const joinGame = () => {
@@ -39,7 +40,8 @@ const JoinPage = () => {
                 setLoading(false);
                 return;
             }
-            setUser(res);
+            setUser(res.user);
+            setRoom(res.room);
             nav("/game");
         });
     }
@@ -66,7 +68,7 @@ const JoinPage = () => {
                 <h1>Join Game</h1>
                 <input
                     placeholder="Game Code"
-                    className="code p-4 rounded-lg text-center"
+                    className="code w-1/4 p-4 rounded-lg text-center"
                     value={roomId}
                     onChange={(e) => setRoomId(e.target.value.toUpperCase())}
                 />
@@ -83,7 +85,7 @@ const JoinPage = () => {
                 <h1>What's your name?</h1>
                 <input
                     placeholder="Username"
-                    className="code p-4 rounded-lg text-center"
+                    className="code w-1/4 p-4 rounded-lg text-center"
                     value={username}
                     onChange={(e) => page == 1 ? setUsername(e.target.value) : null}
                 />

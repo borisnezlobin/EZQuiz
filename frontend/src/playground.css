@@ -2,7 +2,7 @@
     animation: skew 1s linear infinite;
 }
 
-canvas {
+#canvas {
     display: block;
     width: 100%;
     height: 100%;
