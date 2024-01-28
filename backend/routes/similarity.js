@@ -6,7 +6,6 @@ const fs = require('fs');
 var loaded = false;
 
 async function getSimilarities(answer, response) {
-    console.log("GETTING similarities between + \"" + answer + "\" and \"" + response + "\"");
     if (!loaded) {
         console.log("loading model...");
         model = await use.load();

@@ -33,7 +33,7 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
             <h1 className="text-4xl">{data.question.question}</h1>
             {!submitted ? (
                 <>
-                    <div className="w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
+                    <div className="w-2/3 lg:w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
                         <p>Answer {data.username}'s question</p>
                         <textarea
                             className="w-full h-32 border-2 border-black rounded-md p-4"
@@ -49,9 +49,11 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
                     </button>
                 </>
             ) : (
-                <p>Answer submitted!</p>
+                <>
+                    <p>Answer submitted!</p>
+                    <p>You answered: <i className="text-base text-gray-600">"{answerText}"</i></p>
+                </>
             )}
-            <PlayerStats player={player} />
         </div>
     );
 }

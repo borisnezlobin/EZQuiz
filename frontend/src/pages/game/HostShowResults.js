@@ -11,8 +11,8 @@ const HostShowResults = ({ room, player }) => {
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
             <h1 className="text-6xl">Leaderboard</h1>
             <p>Question {room.questionNumber}: {room.currentQuestion.question.question}</p>
-            <hr className="w-1/3" />
-            <ol className="flex flex-col w-1/3 justify-center items-center gap-4">
+            <hr className="w-2/3 lg:w-1/3" />
+            <ol className="flex flex-col w-2/3 lg:w-1/3 justify-center items-center gap-4">
                 {players.map((player, index) => {
                     return (
                         <li className="flex flex-row w-full justify-between items-center gap-4">

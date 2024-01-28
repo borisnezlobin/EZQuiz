@@ -21,7 +21,7 @@ const PlayerResultsPage = ({ data, room, player }) => {
                 {data.totalPoints} points<br />
                 <span className="text-lg text-green-800 font-bold">+ {data.pointsReceived}</span>
             </h1>
-            <PlayerStats player={player} />
+            <PlayerStats username={player.username} score={data.totalPoints} />
             {/* <p className="mt-4">You're in {data.rank}{getPostfix(data.rank)} place{data.rank < 3 ? "!" : ". Keep going!"}</p> */}
 
         </div>
