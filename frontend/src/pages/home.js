@@ -15,7 +15,8 @@ const HomePage = () => {
 
     return (
         <>
-            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center ezquiz">EZQUIZ</div>
+            <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center ezquiz">EZQUIZ
+            <img src="../images/logo.jpeg" id="logo" alt="EZQ Logo" className="logo"></img></div>
             <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center main">
                 <h1 className="">EZQuiz</h1>
                 <p className="mb-24 text-center">Create a game, play with your friends, and answer questions...<br />there are no answer options to save you now!</p>

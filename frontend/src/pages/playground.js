@@ -9,6 +9,9 @@ import { v4 } from "uuid";
 const Playground = () => {
     var mouseX, mouseY;
     var mass = 10;
+    window.onload = function (){
+        setInterval(start ,200);
+    }
     function randomFloat(min, max)
     {
     return Math.random() * (max - min) + min;

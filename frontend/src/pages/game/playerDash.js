@@ -7,6 +7,8 @@ import Playground from "../playground";
 import GameState from "./enum";
 import PlayerNotStartedPage from "./playerNotStartedPage";
 import PlayerQuestionAnswer from "./PlayerQuestionAnswer";
+import PlayerResultsPage from "./PlayerResultsPage";
+import PlayerEndGamePage from "./PlayerEndGamePage";
 
 const PlayerDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -48,7 +50,7 @@ const PlayerDash = ({ client }) => {
                 setStateData(data);
                 // question, username
                 // show question (3 seconds of just question, then appear the answer box)
-                // host: show question + timer (maybe)
+                // host: show question
             }
             if(data.type == "show-results"){
                 setCurrentState(GameState.SHOW_RESULTS);
@@ -71,6 +73,14 @@ const PlayerDash = ({ client }) => {
 
     if(currentState == GameState.SHOW_QUESTION){
         return <PlayerQuestionAnswer user={user} room={room} data={stateData} />
+    }
+
+    if(currentState == GameState.SHOW_RESULTS){
+        return <PlayerResultsPage data={stateData} user={user} room={room} />
+    }
+
+    if(currentState == GameState.GAME_END){
+        return <PlayerEndGamePage data={stateData} user={user} room={room} />
     }
 };
 

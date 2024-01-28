@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-const PlayerQuestionAnswer = ({ room, question, player }) => {
+const PlayerQuestionAnswer = ({ room, data, player }) => {
     const [answerText, setAnswerText] = useState("");
     const [submitted, setSubmitted] = useState(false);
     
@@ -28,13 +28,13 @@ const PlayerQuestionAnswer = ({ room, question, player }) => {
     
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-            <h1 className="text-4xl">{question}</h1>
+            <h1 className="text-4xl">{data.question.question}</h1>
             <div className="w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
-                <h1 className="text-4xl">Answer</h1>
+                <h1 className="text-4xl">Answer {data.username}'s question</h1>
                 <textarea
-                className="w-full h-32 border-2 border-black rounded-md p-4"
-                value={answerText}
-                onChange={(e) => setAnswerText(e.target.value)}
+                    className="w-full h-32 border-2 border-black rounded-md p-4"
+                    value={answerText}
+                    onChange={(e) => setAnswerText(e.target.value)}
                 />
             </div>
             <button
