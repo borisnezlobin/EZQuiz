@@ -14,10 +14,11 @@ const HostNotStartedPage = ({ user, room }) => {
             <div className="w-full h-full min-w-screen min-h-screen z-10 gap-4 flex flex-col justify-center items-center">
                 {/* <CoolBackground /> */}
                 <p className="code w-1/3">ROOM</p>
-                <div className="flex flex-row gap-4 justify-start items-center pb-8">
-                    <h1 className="w-64">{room.id}</h1>
+                <div className="flex flex-row gap-4  justify-between items-center w-1/3">
+                    <h1 className="">{room.id}</h1>
                     <p className="code">{room.questions.length} Question{room.questions.length == 1 ? "" : "s"} Submitted</p>
                 </div>
+                <p className="w-1/3 mb-8 text-center pill">{window.location.protocol}//{window.location.host}/join/{room.id}</p>
                 {numPlayers > 0 ? <hr className="w-2/3" /> : <></>}
                 <p className="flex flex-wrap px-16 mt-4 gap-8">
                     {room.players.map((player) => {

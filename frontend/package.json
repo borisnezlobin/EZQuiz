@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://borisnezlobin.github.io/gunnhax",
   "dependencies": {
     "@phosphor-icons/react": "^2.0.15",
     "@testing-library/jest-dom": "^5.17.0",

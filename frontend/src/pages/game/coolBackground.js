@@ -36,32 +36,33 @@ const coolBackground = () => {
                     var obj = Object.create(this);
                     obj.x = x;
                     obj.y = y;
-                    obj.vx = Math.cos(0) * speed;
-                    obj.vy = Math.sin(0) * speed;
+                    obj.vx = Math.cos(direction) * speed;
+                    obj.vy = Math.sin(direction) * speed;
                     obj.speed = speed;
                     return obj;
                 },
         
                 getSpeed: function() {
-                    return Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    return Math.hypot(this.vx, this.vy);
                 },
         
                 setSpeed: function(speed) {
-                    this.vx = Math.cos(0) * speed;
-                    this.vy = Math.sin(0) * speed;
+                    let oldSpeed = this.getSpeed();
+                    if (oldSpeed == 0) return;
+                    this.vx *= speed/oldSpeed;
+                    this.vy *= speed/oldSpeed;
                 },
         
         
                 update: function() {
-                    var dist = Math.sqrt((this.y - mouseY)*(this.y - mouseY)+(this.x-mouseX)*(this.x-mouseX));
-                    if (dist != 0){
-                        this.vx -= (this.x - mouseX) * 10 / (dist * dist * dist);
-                        this.vy -= (this.y - mouseY) * 10 / (dist * dist * dist);
+                    var dist = Math.hypot(this.y - mouseY, this.x-mouseX);
+                    if (dist != 0 && dist < 50){
+                        this.vx += (this.x - mouseX) * 10 / (dist * dist);
+                        this.vy += (this.y - mouseY) * 10 / (dist * dist);
                     }
-                    var v = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-                    if (v > 0.4) {
-                        this.vx *= .4/v;
-                        this.vy *= .4/v;
+                    var speed = this.getSpeed();
+                    if (speed > 0.4) {
+                        this.setSpeed(0.4)
                     }
                     this.x += this.vx;
                     this.y += this.vy;
