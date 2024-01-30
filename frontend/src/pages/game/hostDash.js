@@ -9,6 +9,7 @@ import HostNotStartedPage from "./HostNotStarted";
 import HostQuestionAnswer from "./HostQuestionAnswer";
 import HostShowResults from "./HostShowResults";
 import HostEndGame from "./HostEndGame";
+import CONFIG from "../../config";
 
 const HostDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -23,7 +24,7 @@ const HostDash = ({ client }) => {
         if(user == null){
             nav("/join");
         }
-        var client = new W3CWebSocket('ws://127.0.0.1:8000');
+        var client = new W3CWebSocket(CONFIG.SOCKET_URL);
 
         client.onerror = (e) => {
             console.log("Connection Error!");

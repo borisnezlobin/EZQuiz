@@ -5,6 +5,7 @@ import { RoomContext, UserContext } from "../context";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
+import CONFIG from "../config";
 
 const JoinPage = () => {
     // get the room id from the url (after /join/)
@@ -33,7 +34,7 @@ const JoinPage = () => {
         // make request (better work tbh)
         setLoading(true);
 
-        fetch("http://localhost:9000/room/join", {
+        fetch(CONFIG.SERVER_URL + "/room/join", {
             body: JSON.stringify({
                 clientId: v4(),
                 roomId: roomId,
@@ -56,23 +57,7 @@ const JoinPage = () => {
 
     const findRoomWithId = () => {
         setLoading(true);
-        fetch("http://localhost:9000/room/" + roomId)
-        .then(res => res.json())
-        .then(res => {
-            if(res == null || res.error){
-                // setError("Room not found");
-                toast.error("Room not found!");
-                return;
-            }
-
-            setPage(1);
-        });
-        setLoading(false);
-    }
-
-    const backHome = () => {
-        setLoading(true);
-        fetch("http://localhost:9000/room/" + roomId)
+        fetch(CONFIG.SERVER_URL + "/room/" + roomId)
         .then(res => res.json())
         .then(res => {
             if(res == null || res.error){

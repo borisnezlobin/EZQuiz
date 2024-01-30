@@ -9,6 +9,7 @@ import PlayerNotStartedPage from "./playerNotStartedPage";
 import PlayerQuestionAnswer from "./PlayerQuestionAnswer";
 import PlayerResultsPage from "./PlayerResultsPage";
 import PlayerEndGamePage from "./PlayerEndGamePage";
+import CONFIG from "../../config";
 
 const PlayerDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -21,7 +22,7 @@ const PlayerDash = ({ client }) => {
         if(user == null){
             nav("/join");
         }
-        var client = new W3CWebSocket('ws://127.0.0.1:8000');
+        var client = new W3CWebSocket(CONFIG.SOCKET_URL);
 
         client.onerror = (e) => {
             console.log("Connection Error!");
