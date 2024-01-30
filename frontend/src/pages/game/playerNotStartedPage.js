@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import "../../playground.css";
 import { v4 } from "uuid";
+import CONFIG from "../../config";
 
 const PlayerNotStartedPage = ({ user, room }) => {
     const [question, setQuestion] = useState("");
@@ -27,7 +28,7 @@ const PlayerNotStartedPage = ({ user, room }) => {
                         toast.error("Please enter a question and answer");
                         return;
                     }
-                    fetch("http://localhost:9000/submit-question", {
+                    fetch(CONFIG.SERVER_URL + "/submit-question", {
                         body: JSON.stringify({
                             question: {
                                 id: v4(),

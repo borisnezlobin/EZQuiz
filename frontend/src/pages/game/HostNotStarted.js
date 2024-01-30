@@ -3,6 +3,7 @@ import { RoomContext, UserContext } from "../../context";
 import { Copy, Play } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import CONFIG from "../../config";
 
 const HostNotStartedPage = ({ user, room }) => {
     const nav = useNavigate();
@@ -37,7 +38,7 @@ const HostNotStartedPage = ({ user, room }) => {
             <div className="absolute bottom-4 w-full flex flex-row justify-center items-center gap-4">
                 <p>{numPlayers} Player{numPlayers == 1 ? "" : "s"}</p>
                 <button onClick={() => {
-                    fetch("http://localhost:9000/start-game", {
+                    fetch(CONFIG.SERVER_URL + "/start-game", {
                         body: JSON.stringify({
                             roomId: room.id,
                         }),

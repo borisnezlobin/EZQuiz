@@ -363,10 +363,20 @@ const getPlayerWithId = (roomId, playerId) => {
 }
 
 const WebSocket = require('ws');
-const wss = new WebSocketServer({ port : '8000'});
+const wss = new WebSocket.Server({ port : process.env.PORT || '8000', path: "/ws"});
+wss.on("listening", () => {
+  console.log("listening on port " + (process.env.PORT || '8000'));
+});
+
+wss.on("error", (err) => {
+  console.log("websocket ERROR!");
+  console.error(err);
+});
+
 wss.on("connection", socket => {
   var clientId = "";
   var roomId = "";
+  console.log("new connection!");
   socket.on("message", message => {
     console.log("got message " + message);
     const data = JSON.parse(message);

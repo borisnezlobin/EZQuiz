@@ -1,4 +1,5 @@
 import { ArrowRight } from "@phosphor-icons/react";
+import CONFIG from "../../config";
 
 const HostShowResults = ({ room, player }) => {
     // TODO: show top 5 from room.players
@@ -27,7 +28,7 @@ const HostShowResults = ({ room, player }) => {
             </ol>
             <div className="absolute bottom-4 flex flex-row justify-center items-center">
                 <button onClick={() => {
-                    fetch("http://localhost:9000/next-question", {
+                    fetch(CONFIG.SERVER_URL + "/next-question", {
                         body: JSON.stringify({
                             // TODO:
                             roomId: room.id,

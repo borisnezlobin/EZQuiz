@@ -1,7 +1,7 @@
 .main {
   opacity: 0;
   animation: glow;
-  animation-duration: 1s;
+  animation-duration: .25s;
   animation-delay: 3s;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
@@ -108,8 +108,6 @@
 
 #text {
   color: black;
-  font-size: 3.5vw;
-  padding-top: 40px;
   overflow: hidden;
   white-space: nowrap;
   height: 2em;

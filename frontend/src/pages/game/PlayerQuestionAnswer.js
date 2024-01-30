@@ -1,13 +1,14 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import PlayerStats from "./PlayerStats";
+import CONFIG from "../../config";
 
 const PlayerQuestionAnswer = ({ room, data, player }) => {
     const [answerText, setAnswerText] = useState("");
     const [submitted, setSubmitted] = useState(false);
     
     const submitAnswer = () => {
-        fetch("http://localhost:9000/submit-answer", {
+        fetch(CONFIG.SERVER_URL + "/submit-answer", {
             body: JSON.stringify({
                 type: "submit-answer",
                 answer: answerText,
