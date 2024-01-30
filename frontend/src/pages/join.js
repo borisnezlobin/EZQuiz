@@ -1,13 +1,15 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ArrowRight, CircleNotch } from "@phosphor-icons/react";
 import { v4 } from "uuid";
 import { RoomContext, UserContext } from "../context";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 
 const JoinPage = () => {
-    const [roomId, setRoomId] = useState("");
+    // get the room id from the url (after /join/)
+    const { id } = useParams();
+    const [roomId, setRoomId] = useState(id ? id : "");
     const [username, setUsername] = useState("");
     const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -16,6 +18,12 @@ const JoinPage = () => {
     const { setUser } = useContext(UserContext);
     const { setRoom } = useContext(RoomContext);
     const nav = useNavigate();
+
+    useEffect(() => {
+        if(id){
+            findRoomWithId();
+        }
+    })
 
     const joinGame = () => {
         if(username.trim().length < 2){

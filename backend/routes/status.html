@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Backend Status</title>
+        <style>
+            /* import Inter */
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+            body {
+                padding-top: 50px;
+                font-family: "Inter", sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 4rem;
+            }
+            .big-text {
+                font-size: 2em;
+                font-weight: 800;
+                margin: 0 0.5em;
+            }
+            h1 {
+                font-size: 3em;
+                font-weight: 800;
+                margin-bottom: 0.5em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Backend is running!</h1>
+        <p>
+            There are currently
+            <span class="big-text">{{ rooms }}</span> rooms and
+            <span class="big-text">{{ players }}</span> players online.
+        </p>
+    </body>
+</html>
