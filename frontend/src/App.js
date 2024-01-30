@@ -15,6 +15,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/join" element={<JoinPage />} />
+            <Route path="/join/:id" element={<JoinPage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/playground" element={<Playground />} />
             <Route path="/game" element={<GamePage />} />

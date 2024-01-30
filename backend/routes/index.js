@@ -2,11 +2,21 @@ const createServer = require("https").createServer;
 const WebSocketServer = require("ws").WebSocketServer;
 var express = require('express');
 var router = express.Router();
+const fs = require("fs");
+const path = require("path");
 const getSimilarities = require("./similarity").getSimilarities;
 // https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  // read ./status.html
+  var html = fs.readFileSync(path.join(__dirname, "./status.html"), "utf8");
+  html = html.replace('{{ rooms }}', rooms.length);
+  var players = 0;
+  for(var i = 0; i < rooms.length; i++){
+    players += rooms[i].players.length;
+  }
+  html = html.replace('{{ players }}', players);
+  res.status(200).send(html);
 });
 
 function onSocketError(err) {
@@ -16,17 +26,6 @@ function onSocketError(err) {
 
 const randomHex = () => `${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`.toUpperCase();
 var rooms = [];
-
-
-class Room{
-	constructor(roomN){
-    	this.number = roomN;
-    }
-    
-  	displayInfo(){
-    	return this.number;
-    }
-}
 
 router.post("/room/join", (req, res) => {
   const data = req.body;
