@@ -363,9 +363,9 @@ const getPlayerWithId = (roomId, playerId) => {
 }
 
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port : process.env.PORT || '8000', path: "/ws"});
+const wss = new WebSocket.Server({ port : '3475', path: "/ws"});
 wss.on("listening", () => {
-  console.log("listening on port " + (process.env.PORT || '8000'));
+  console.log("listening on port " + '3475');
 });
 
 wss.on("error", (err) => {
