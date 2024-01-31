@@ -12,7 +12,7 @@ function App() {
   return (
     <Providers>
       <div className='w-full h-full min-h-screen min-w-screen overflow-x-hidden bg-slate-50'>
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
           <Routes>
             <Route path="/join" element={<JoinPage />} />
             <Route path="/join/:id" element={<JoinPage />} />

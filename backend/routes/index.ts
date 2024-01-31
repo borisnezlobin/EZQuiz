@@ -1,3 +1,6 @@
+import { Player, PlayerAnswer, Question, Room } from "../types/types";
+import { verifyRequestBody } from "../types/verify-object";
+
 const createServer = require("https").createServer;
 const WebSocketServer = require("ws").WebSocketServer;
 var express = require('express');
@@ -25,15 +28,17 @@ function onSocketError(err) {
 
 
 const randomHex = () => `${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`.toUpperCase();
-var rooms = [];
+var rooms: import("../types/types").Room[] = [];
 
 router.post("/room/join", (req, res) => {
   const data = req.body;
+  if(verifyRequestBody(data, ["clientId", "roomId", "username"])) return res.status(400).send({ error: "Invalid request body" });
+
   // data will have clientId, roomId, username
   const room = getRoomWithId(data.roomId || "weeeeeeee");
   console.log(JSON.stringify(data));
   if(!room){
-    res.status(404).send({ error: "Room with code not found" });
+    return res.status(404).send({ error: "Room with code not found" });
   }
   console.log("room " + room.id + " found");
   if (data.clientId == room.host){
@@ -54,6 +59,8 @@ router.post("/room/join", (req, res) => {
 
   // update room for host
   const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(500).send({ error: "Host not found for room " + room.id });
+
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
@@ -67,7 +74,7 @@ router.post("/room/join", (req, res) => {
   });
 });
 
-const getRoomWithId = (id) => {
+const getRoomWithId = (id: string): Room | null => {
   for(var i = 0; i < rooms.length; i++){
     if(rooms[i].id == id.toUpperCase()) return rooms[i];
   }
@@ -83,17 +90,21 @@ router.get('/room/:id', (req, res) => {
 
 router.post("/submit-question", (req, res) => {
   const data = req.body;
+  if(verifyRequestBody(data, ["clientId", "roomId", "question", "answer"])) return res.status(400).send({ error: "Invalid request body" });
   const room = getRoomWithId(data.roomId);
-  const host = getPlayerWithId(room.id, room.host);
   if(!room) return res.status(404).send({ error: "Room not found" });
+  const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(404).send({ error: "Host for room " + room.id + " not found" });
   const player = getPlayerWithId(room.id, data.clientId);
   if(!player) return res.status(404).send({ error: "Player not found" });
-  const question = {
+  const question: Question = {
     question: data.question,
     answer: data.answer,
-    submittedBy: player.username,
-    questionId: data.questionId,
+    submittedBy: player,
     id: randomHex(),
+    options: [],
+    answers: [],
+    used: false,
   }
   room.questions.push(question);
   if(host.connection){
@@ -105,12 +116,12 @@ router.post("/submit-question", (req, res) => {
   res.status(200).send({ success: true });
 });
 
-const findQuestionWithId = (room, questionId) => {
+const findQuestionWithId = (room: Room, questionId: string) => {
   console.log("finding question with id " + questionId);
   if(!room) return null;
   console.log("room questions are " + JSON.stringify(room.questions));
   for(var i = 0; i < room.questions.length; i++){
-    if(room.questions[i].question.id == questionId) return room.questions[i];
+    if(room.questions[i].id == questionId) return room.questions[i];
     else console.log("tried to match question " + JSON.stringify(room.questions[i]) + " with " + questionId);
   }
   return null;
@@ -124,12 +135,13 @@ router.post("/next-question", (req, res) => {
   const host = getPlayerWithId(room.id, room.host);
   if(!host) return res.status(404).send({ error: "Host not found" });
 
+  room.questions[room.questionNumber - 1].used = true;
   room.questionNumber += 1;
   // pop current question from questions list
-  room.questions = room.questions.filter((question) => {
-    console.log(question);
-    return question.id != room.currentQuestion.id;
-  });
+  // room.questions = room.questions.filter((question) => {
+  //   console.log(question);
+  //   return question.id != room.questions[room.questionNumber - 1].id;
+  // });
   // TODO: game ended if all questions used up
   if(room.questions.length == 0){
     // publish to all players that game has ended
@@ -151,8 +163,9 @@ router.post("/next-question", (req, res) => {
     return res.status(200).send({ success: true });
   }
 
-  room.currentQuestion = room.questions[Math.floor(Math.random() * room.questions.length)];
-  room.questionAnswers = [];
+  // room.currentQuestion = room.questions[Math.floor(Math.random() * room.questions.length)];
+  room.pendingAnswers = [];
+  const newQuestion = room.questions[room.questionNumber - 1];
 
   if(host.connection){
     host.connection.send(JSON.stringify({
@@ -161,8 +174,8 @@ router.post("/next-question", (req, res) => {
     }));
     host.connection.send(JSON.stringify({
       type: "show-question",
-      question: room.currentQuestion.question,
-      username: room.currentQuestion.submittedBy,
+      question: newQuestion.question,
+      username: newQuestion.submittedBy.username,
     }));
   }
 
@@ -172,8 +185,8 @@ router.post("/next-question", (req, res) => {
       console.log("sending update to " + player.username);
       player.connection.send(JSON.stringify({
         type: "show-question",
-        question: room.currentQuestion.question,
-        username: room.currentQuestion.submittedBy,
+        question: newQuestion.question,
+        username: newQuestion.submittedBy.username,
       }));
     }
   }
@@ -181,26 +194,41 @@ router.post("/next-question", (req, res) => {
   res.status(200).send({ success: true });
 });
 
-const serializableRoom = (room) => {
+function serializableRoom(room: Room): any {
+  // thanks copilot
   return {
-    id: room.id,
-    players: room.players.map((player) => {
-      return {
-        id: player.id,
-        username: player.username,
-        score: player.score,
-        isHost: player.isHost,
-      }
-    }
-    ),
-    questions: room.questions,
-    currentQuestion: room.currentQuestion,
-    questionNumber: room.questionNumber,
-    questionAnswers: room.questionAnswers,
-    createdAt: room.createdAt,
-    host: room.host,
+    ...room,
+    host: {
+      ...room.host,
+      connection: undefined, // remove the connection property
+    },
+    players: room.players.map(player => ({
+      ...player,
+      connection: undefined, // remove the connection property
+    })),
+    questions: room.questions.map(question => ({
+      ...question,
+      submittedBy: {
+        ...question.submittedBy,
+        connection: undefined, // remove the connection property
+      },
+      answers: question.answers.map(answer => ({
+        ...answer,
+        player: {
+          ...answer.player,
+          connection: undefined, // remove the connection property
+        },
+      })),
+    })),
+    pendingAnswers: room.pendingAnswers.map(answer => ({
+      ...answer,
+      player: {
+        ...answer.player,
+        connection: undefined, // remove the connection property
+      },
+    })),
   };
-};
+}
 
 router.post("/submit-answer", async (req, res) => {
   const data = req.body;
@@ -209,21 +237,23 @@ router.post("/submit-answer", async (req, res) => {
   const player = getPlayerWithId(room.id, data.clientId);
   if(!player) return res.status(404).send({ error: "Player not found" });
 
-  const question = findQuestionWithId(room, data.questionId);
+  const question = findQuestionWithId(room, data.id);
   if(!question) return res.status(404).send({ error: "Question not found" });
   console.log("found question " + JSON.stringify(question));
 
-  const answer = {
-    questionId: question.id,
+  const answer: PlayerAnswer = {
+    // id: question.id,
     answer: data.answer,
-    submittedBy: player.id,
-    scoreReceived: await getSimilarities(question.answer, data.answer),
+    player: player,
+    username: player.username,
+    score: await getSimilarities(question.answer, data.answer),
   };
 
-  room.questionAnswers.push(answer);
+  room.pendingAnswers.push(answer);
   console.log("pushed answer " + JSON.stringify(answer) + " to room " + room.id);
 
   const host = getPlayerWithId(room.id, room.host);
+  if(!host) return res.status(404).send({ error: "Host not found" });
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
@@ -242,16 +272,16 @@ router.post("/show-results", (req, res) => {
   const host = getPlayerWithId(room.id, room.host);
   if(!host) return res.status(404).send({ error: "Host not found" });
 
-  for(var i = 0; i < room.questionAnswers.length; i++){
-    const answer = room.questionAnswers[i];
-    const player = getPlayerWithId(room.id, answer.submittedBy);
+  for(var i = 0; i < room.pendingAnswers.length; i++){
+    const answer = room.pendingAnswers[i];
+    const player = getPlayerWithId(room.id, answer.player.id);
     if(!player) continue;
-    player.score += answer.scoreReceived;
+    player.score += answer.score;
     if(player.connection){
       console.log("sending update to " + player.username);
       player.connection.send(JSON.stringify({
         type: "show-results",
-        pointsReceived: answer.scoreReceived,
+        pointsReceived: answer.score,
         totalPoints: player.score,
       }));
     }
@@ -287,10 +317,10 @@ router.post("/start-game", (req, res) => {
     // remove from the questions list
     // do the flow?
   const question = room.questions[Math.floor(Math.random() * room.questions.length)];
-  room.currentQuestion = question;
+  // room.currentQuestion = question;
   room.questionNumber = 1;
-  room.questionAnswers = [];
-  console.log("first question is " + JSON.stringify(room.currentQuestion));
+  room.pendingAnswers = [];
+  console.log("first question is " + JSON.stringify(room.questions[room.questionNumber - 1]));
   if(host.connection){
     host.connection.send(JSON.stringify({
       type: "room-update",
@@ -315,42 +345,41 @@ router.post("/start-game", (req, res) => {
 });
 
 router.post('/create-room', (req, res) => {
+  if(verifyRequestBody(req.body, ["ownerId"])) return res.status(400).send({ error: "Invalid request body" });
   var goAhead = false;
   //creates a room code
   while (!goAhead){
     const newRoomId = randomHex();
     goAhead = true;
     for (var i = 0; i < rooms.length; i++){
-      if (randomHex == rooms[i]){
+      if (newRoomId == rooms[i].id){
         goAhead = false;
+        break;
       }
     }
-    const room = {
-      id: newRoomId,
-      players: [],
-      questions: [],
-      currentQuestion: null,
-      questionNumber: 0,
-      questionAnswers: [],
-      createdAt: Date.now(),
-      host: req.body.ownerId // whoever made the request? idk how we are going to identify clients or something
-    }
-    if (goAhead) rooms.push(room);
-    console.log("created room " + newRoomId);
-    const player = {
+    const player: Player = {
       id: req.body.ownerId,
       username: "host",
       score: 0,
       isHost: true,
       connection: null,
     }
+    const room: Room = {
+      id: newRoomId,
+      players: [],
+      questions: [],
+      questionNumber: 0,
+      pendingAnswers: [],
+      host: player
+    }
+    if (goAhead) rooms.push(room);
+    console.log("created room " + newRoomId);
     room.players.push(player);
     res.status(200).send({
       player: player,
       room: serializableRoom(room),
     });
   }
-  // rooms[0].createServer();
 });
 
 const getPlayerWithId = (roomId, playerId) => {
