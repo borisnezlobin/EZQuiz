@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/gunnhax/static/css/main.ee7699e8.css",
-    "main.js": "/gunnhax/static/js/main.d2a461ab.js",
+    "main.css": "/gunnhax/static/css/main.bb8f2285.css",
+    "main.js": "/gunnhax/static/js/main.a22f344b.js",
     "static/media/image.png": "/gunnhax/static/media/image.5e18db519388ebe4e10f.png",
     "index.html": "/gunnhax/index.html",
-    "main.ee7699e8.css.map": "/gunnhax/static/css/main.ee7699e8.css.map",
-    "main.d2a461ab.js.map": "/gunnhax/static/js/main.d2a461ab.js.map"
+    "main.bb8f2285.css.map": "/gunnhax/static/css/main.bb8f2285.css.map",
+    "main.a22f344b.js.map": "/gunnhax/static/js/main.a22f344b.js.map"
   },
   "entrypoints": [
-    "static/css/main.ee7699e8.css",
-    "static/js/main.d2a461ab.js"
+    "static/css/main.bb8f2285.css",
+    "static/js/main.a22f344b.js"
   ]
 }
