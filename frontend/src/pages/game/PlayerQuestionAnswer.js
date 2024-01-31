@@ -14,7 +14,7 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
                 answer: answerText,
                 roomId: room.id,
                 clientId: player.id,
-                questionId: data.question.id,
+                id: data.questionId,
             }),
             method: "POST",
             headers: {
