@@ -18,11 +18,17 @@
                 padding: 4rem;
                 color: #3c3c3c;
             }
+            .code { font-family: "Fira Code", monospace; }
             .big-text {
                 font-size: 2em;
                 font-weight: 800;
                 margin: 0 0.5em;
-                font-family: "Fira Code", monospace;
+            }
+            .info {
+                font-size: 0.8em;
+                font-weight: 500;
+                margin-bottom: 1em;
+                color: darkgrey;
             }
             h1 {
                 font-size: 3em;
@@ -32,11 +38,14 @@
         </style>
     </head>
     <body>
-        <h1>Backend is running!</h1>
+        <div>
+            <h1>Backend is running!</h1>
+            <p class="info code">v{{ version }}</p>
+        </div>
         <p>
             There are currently
-            <span class="big-text">{{ rooms }}</span> rooms and
-            <span class="big-text">{{ players }}</span> players online.
+            <span class="big-text code">{{ rooms }}</span> rooms and
+            <span class="big-text code">{{ players }}</span> players online.
         </p>
     </body>
 </html>

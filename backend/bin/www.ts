@@ -4,16 +4,15 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('backend:server');
-var http = require('http');
+import app from '../app.ts';
+import server from '../server.js';
+import debug from 'debug';
 
 
 /**
  * Create HTTP server.
  */
 
-const server = require("../server");
 server.on("request", app);
 
 var port = normalizePort(process.env.PORT || '8000');
@@ -82,6 +81,9 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
+  if(addr === null) {
+    return;
+  }
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;

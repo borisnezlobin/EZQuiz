@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { RoomContext, UserContext } from "../../context";
+import { RoomContext, UserContext } from "../../context.tsx";
 
 const getPostfix = (num) => {
     if (num === 1) {

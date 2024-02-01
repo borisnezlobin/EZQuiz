@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { ArrowRight, CircleNotch } from "@phosphor-icons/react";
 import { v4 } from "uuid";
-import { RoomContext, UserContext } from "../context";
+import { RoomContext, UserContext } from "../context.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
@@ -72,12 +72,12 @@ const JoinPage = () => {
     }
 
     return (
-        <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
+        <div className="w-full md:w-1/3 p-4 md:left-1/3 relative h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
             {page == 0 ? <>
                 <h1>Join Game</h1>
                 <input
                     placeholder="Game Code"
-                    className="code w-1/4 p-4 rounded-lg text-center"
+                    className="code w-full p-4 rounded-lg text-center"
                     value={roomId}
                     onChange={(e) => setRoomId(e.target.value.toUpperCase())}
                 />
@@ -102,7 +102,7 @@ const JoinPage = () => {
                 <h1>What's your name?</h1>
                 <input
                     placeholder="Username"
-                    className="code w-1/4 p-4 rounded-lg text-center"
+                    className="code w-full p-4 rounded-lg text-center"
                     value={username}
                     onChange={(e) => page == 1 ? setUsername(e.target.value) : null}
                 />

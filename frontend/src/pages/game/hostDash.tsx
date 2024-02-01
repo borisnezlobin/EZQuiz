@@ -1,15 +1,14 @@
 import { useContext, useState } from "react"
-import { RoomContext, UserContext } from "../../context";
-import { Play } from "@phosphor-icons/react";
+import { RoomContext, UserContext } from "../../context.tsx";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import GameState from "./enum";
-import HostNotStartedPage from "./HostNotStarted";
-import HostQuestionAnswer from "./HostQuestionAnswer";
-import HostShowResults from "./HostShowResults";
-import HostEndGame from "./HostEndGame";
-import CONFIG from "../../config";
+import GameState from "./enum.js";
+import HostNotStartedPage from "./HostNotStarted.tsx";
+import HostQuestionAnswer from "./HostQuestionAnswer.tsx";
+import HostShowResults from "./HostShowResults.js";
+import HostEndGame from "./HostEndGame.js";
+import CONFIG from "../../config.js";
 
 const HostDash = ({ client }) => {
     const { user } = useContext(UserContext);
@@ -44,7 +43,7 @@ const HostDash = ({ client }) => {
 
         client.onmessage = (msg) => {
             console.log("got a message! " + msg);
-            const data = JSON.parse(msg.data);
+            const data = JSON.parse(msg.data as string); // I guess that works
             if(data.type == "room-update"){
                 setRoom(data.room);
                 console.log("updated room!");
@@ -81,7 +80,7 @@ const HostDash = ({ client }) => {
     }
 
     if(currentState == GameState.SHOW_QUESTION){
-        return <HostQuestionAnswer player={user} room={room} data={stateData} />
+        return <HostQuestionAnswer player={user} room={room} />
     }
 
     if(currentState == GameState.SHOW_RESULTS){

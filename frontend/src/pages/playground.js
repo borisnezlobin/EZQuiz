@@ -1,10 +1,4 @@
-import { CircleNotch, Plus } from "@phosphor-icons/react"
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context";
-import toast from "react-hot-toast";
 import "../playground.css";
-import { v4 } from "uuid";
 
 const Playground = () => {
     var mouseX, mouseY;

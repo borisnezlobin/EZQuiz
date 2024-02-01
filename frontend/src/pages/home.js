@@ -1,7 +1,7 @@
 import { CircleNotch, Plus } from "@phosphor-icons/react"
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom"
-import { RoomContext, UserContext } from "../context";
+import { RoomContext, UserContext } from "../context.tsx";
 import toast from "react-hot-toast";
 import { v4 } from "uuid";
 import CoolBackground from "./game/coolBackground";

@@ -1,5 +1,5 @@
-import { Player, PlayerAnswer, Question, Room } from "../types/types";
-import { verifyRequestBody } from "../types/verify-object";
+import { verifyRequestBody } from '../types/verify-object';
+import { Room, Player, Question, PlayerAnswer } from '../types/types';
 
 const createServer = require("https").createServer;
 const WebSocketServer = require("ws").WebSocketServer;
@@ -8,17 +8,19 @@ var router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const getSimilarities = require("./similarity").getSimilarities;
-// https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  // read ./status.html
+
+const version = fs.readFileSync(path.join(__dirname, "../version.txt"), "utf8");;
+
+router.get('/', function (req, res, next) {
+  // but have you ever seen something this good?
   var html = fs.readFileSync(path.join(__dirname, "./status.html"), "utf8");
   html = html.replace('{{ rooms }}', rooms.length);
   var players = 0;
-  for(var i = 0; i < rooms.length; i++){
+  for (var i = 0; i < rooms.length; i++) {
     players += rooms[i].players.length;
   }
   html = html.replace('{{ players }}', players);
+  html = html.replace('{{ version }}', version);
   res.status(200).send(html);
 });
 
@@ -32,16 +34,16 @@ var rooms: import("../types/types").Room[] = [];
 
 router.post("/room/join", (req, res) => {
   const data = req.body;
-  if(verifyRequestBody(data, ["clientId", "roomId", "username"])) return res.status(400).send({ error: "Invalid request body" });
+  if (verifyRequestBody(data, ["clientId", "roomId", "username"])) return res.status(400).send({ error: "Invalid request body" });
 
   // data will have clientId, roomId, username
   const room = getRoomWithId(data.roomId || "weeeeeeee");
   console.log(JSON.stringify(data));
-  if(!room){
+  if (!room) {
     return res.status(404).send({ error: "Room with code not found" });
   }
   console.log("room " + room.id + " found");
-  if (data.clientId == room.host){
+  if (data.clientId == room.host) {
     console.log("owner is home");
     // implement show page that the owner should see
   }
@@ -54,14 +56,24 @@ router.post("/room/join", (req, res) => {
     isHost: room.host == data.clientId,
   }
 
-  
+
   room.players.push(user);
 
-  // update room for host
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(500).send({ error: "Host not found for room " + room.id });
+  for (var i = 0; i < room.players.length; i++) {
+    if (room.players[i].connection) {
+      room.players[i].connection.send(JSON.stringify({
+        type: "room-update",
+        room: serializableRoom(room),
+        user: room.players[i],
+      }));
+    }
+  }
 
-  if(host.connection){
+  // update room for host
+  const host = room.host;
+  if (!host) return res.status(500).send({ error: "Host not found for room " + room.id });
+
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
@@ -70,13 +82,13 @@ router.post("/room/join", (req, res) => {
 
   res.status(200).send({
     user: user,
-    room: { id: room.id }
+    room: serializableRoom(room),
   });
 });
 
 const getRoomWithId = (id: string): Room | null => {
-  for(var i = 0; i < rooms.length; i++){
-    if(rooms[i].id == id.toUpperCase()) return rooms[i];
+  for (var i = 0; i < rooms.length; i++) {
+    if (rooms[i].id == id.toUpperCase()) return rooms[i];
   }
 
   return null;
@@ -84,19 +96,19 @@ const getRoomWithId = (id: string): Room | null => {
 
 router.get('/room/:id', (req, res) => {
   const room = getRoomWithId(req.params.id);
-  if(!room) return res.status(404).send({ error: "Room not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
   return res.send(room);
 })
 
 router.post("/submit-question", (req, res) => {
   const data = req.body;
-  if(verifyRequestBody(data, ["clientId", "roomId", "question", "answer"])) return res.status(400).send({ error: "Invalid request body" });
+  if (verifyRequestBody(data, ["clientId", "roomId", "question", "answer"])) return res.status(400).send({ error: "Invalid request body" });
   const room = getRoomWithId(data.roomId);
-  if(!room) return res.status(404).send({ error: "Room not found" });
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(404).send({ error: "Host for room " + room.id + " not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
+  const host = room.host;
+  if (!host) return res.status(404).send({ error: "Host for room " + room.id + " not found" });
   const player = getPlayerWithId(room.id, data.clientId);
-  if(!player) return res.status(404).send({ error: "Player not found" });
+  if (!player) return res.status(404).send({ error: "Player not found" });
   const question: Question = {
     question: data.question,
     answer: data.answer,
@@ -107,7 +119,7 @@ router.post("/submit-question", (req, res) => {
     used: false,
   }
   room.questions.push(question);
-  if(host.connection){
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
@@ -118,10 +130,10 @@ router.post("/submit-question", (req, res) => {
 
 const findQuestionWithId = (room: Room, questionId: string) => {
   console.log("finding question with id " + questionId);
-  if(!room) return null;
+  if (!room) return null;
   console.log("room questions are " + JSON.stringify(room.questions));
-  for(var i = 0; i < room.questions.length; i++){
-    if(room.questions[i].id == questionId) return room.questions[i];
+  for (var i = 0; i < room.questions.length; i++) {
+    if (room.questions[i].id == questionId) return room.questions[i];
     else console.log("tried to match question " + JSON.stringify(room.questions[i]) + " with " + questionId);
   }
   return null;
@@ -129,11 +141,11 @@ const findQuestionWithId = (room: Room, questionId: string) => {
 
 router.post("/next-question", (req, res) => {
   const room = getRoomWithId(req.body.roomId);
-  if(!room) return res.status(404).send({ error: "Room not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
   const player = getPlayerWithId(room.id, req.body.clientId);
-  if(!player) return res.status(404).send({ error: "Player not found" });
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(404).send({ error: "Host not found" });
+  if (!player) return res.status(404).send({ error: "Player not found" });
+  const host = room.host;
+  if (!host) return res.status(404).send({ error: "Host not found" });
 
   room.questions[room.questionNumber - 1].used = true;
   room.questionNumber += 1;
@@ -143,17 +155,25 @@ router.post("/next-question", (req, res) => {
   //   return question.id != room.questions[room.questionNumber - 1].id;
   // });
   // TODO: game ended if all questions used up
-  if(room.questions.length == 0){
+  if (room.questions.length == 0) {
     // publish to all players that game has ended
-    if(host.connection){
+    if (host.connection) {
+      host.connection.send(JSON.stringify({
+        type: "room-update",
+        room: serializableRoom(room),
+      }));
       host.connection.send(JSON.stringify({
         type: "game-end",
         room: serializableRoom(room),
       }));
     }
-    for(var i = 0; i < room.players.length; i++){
+    for (var i = 0; i < room.players.length; i++) {
       const player = room.players[i];
-      if(player.connection){
+      if (player.connection) {
+        player.connection.send(JSON.stringify({
+          type: "room-update",
+          room: serializableRoom(room),
+        }));
         player.connection.send(JSON.stringify({
           type: "game-end",
           room: serializableRoom(room),
@@ -167,7 +187,7 @@ router.post("/next-question", (req, res) => {
   room.pendingAnswers = [];
   const newQuestion = room.questions[room.questionNumber - 1];
 
-  if(host.connection){
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
@@ -179,10 +199,14 @@ router.post("/next-question", (req, res) => {
     }));
   }
 
-  for(var i = 0; i < room.players.length; i++){
+  for (var i = 0; i < room.players.length; i++) {
     const player = room.players[i];
-    if(player.connection){
+    if (player.connection) {
       console.log("sending update to " + player.username);
+      player.connection.send(JSON.stringify({
+        type: "room-update",
+        room: serializableRoom(room),
+      }));
       player.connection.send(JSON.stringify({
         type: "show-question",
         question: newQuestion.question,
@@ -233,12 +257,12 @@ function serializableRoom(room: Room): any {
 router.post("/submit-answer", async (req, res) => {
   const data = req.body;
   const room = getRoomWithId(data.roomId);
-  if(!room) return res.status(404).send({ error: "Room not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
   const player = getPlayerWithId(room.id, data.clientId);
-  if(!player) return res.status(404).send({ error: "Player not found" });
+  if (!player) return res.status(404).send({ error: "Player not found" });
 
   const question = findQuestionWithId(room, data.id);
-  if(!question) return res.status(404).send({ error: "Question not found" });
+  if (!question) return res.status(404).send({ error: "Question not found" });
   console.log("found question " + JSON.stringify(question));
 
   const answer: PlayerAnswer = {
@@ -252,9 +276,9 @@ router.post("/submit-answer", async (req, res) => {
   room.pendingAnswers.push(answer);
   console.log("pushed answer " + JSON.stringify(answer) + " to room " + room.id);
 
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(404).send({ error: "Host not found" });
-  if(host.connection){
+  const host = room.host;
+  if (!host) return res.status(404).send({ error: "Host not found" });
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
@@ -266,19 +290,23 @@ router.post("/submit-answer", async (req, res) => {
 
 router.post("/show-results", (req, res) => {
   const room = getRoomWithId(req.body.roomId);
-  if(!room) return res.status(404).send({ error: "Room not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
   const player = getPlayerWithId(room.id, req.body.clientId);
-  if(!player) return res.status(404).send({ error: "Player not found" });
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(404).send({ error: "Host not found" });
+  if (!player) return res.status(404).send({ error: "Player not found" });
+  const host = room.host;
+  if (!host) return res.status(404).send({ error: "Host not found" });
 
-  for(var i = 0; i < room.pendingAnswers.length; i++){
+  for (var i = 0; i < room.pendingAnswers.length; i++) {
     const answer = room.pendingAnswers[i];
     const player = getPlayerWithId(room.id, answer.player.id);
-    if(!player) continue;
+    if (!player) continue;
     player.score += answer.score;
-    if(player.connection){
+    if (player.connection) {
       console.log("sending update to " + player.username);
+      player.connection.send(JSON.stringify({
+        type: "room-update",
+        room: serializableRoom(room),
+      }));
       player.connection.send(JSON.stringify({
         type: "show-results",
         pointsReceived: answer.score,
@@ -288,7 +316,7 @@ router.post("/show-results", (req, res) => {
   }
 
   // update room for host
-  if(host.connection){
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
@@ -306,53 +334,53 @@ router.post("/show-results", (req, res) => {
 router.post("/start-game", (req, res) => {
   const data = req.body;
   const room = getRoomWithId(data.roomId);
-  if(!room) return res.status(404).send({ error: "Room not found" });
+  if (!room) return res.status(404).send({ error: "Room not found" });
   console.log("starting game in room " + room.id);
-  const host = getPlayerWithId(room.id, room.host);
-  if(!host) return res.status(404).send({ error: "Host not found" });
+  const host = room.host;
+  if (!host) return res.status(404).send({ error: "Host not found" });
 
   // to start the game we need to:
-    // just pick a random question
-    // set it to the current one
-    // remove from the questions list
-    // do the flow?
+  // just pick a random question
+  // set it to the current one
+  // remove from the questions list
+  // do the flow?
   const question = room.questions[Math.floor(Math.random() * room.questions.length)];
   // room.currentQuestion = question;
   room.questionNumber = 1;
   room.pendingAnswers = [];
-  console.log("first question is " + JSON.stringify(room.questions[room.questionNumber - 1]));
-  if(host.connection){
+  console.log("Got first question! Best of luck to everyone in this game!");
+  if (host.connection) {
     host.connection.send(JSON.stringify({
       type: "room-update",
       room: serializableRoom(room),
     }));
     host.connection.send(JSON.stringify({
       type: "show-question",
-      question: question.question,
-      username: question.submittedBy,
     }));
   }
-  for(var i = 0; i < room.players.length; i++){
+  for (var i = 0; i < room.players.length; i++) {
     const player = room.players[i];
-    if(player.connection){
+    if (player.connection) {
+      player.connection.send(JSON.stringify({
+        type: "room-update",
+        room: serializableRoom(room),
+      }));
       player.connection.send(JSON.stringify({
         type: "show-question",
-        question: question.question,
-        username: question.submittedBy,
       }));
     }
   }
 });
 
 router.post('/create-room', (req, res) => {
-  if(verifyRequestBody(req.body, ["ownerId"])) return res.status(400).send({ error: "Invalid request body" });
+  if (verifyRequestBody(req.body, ["ownerId"])) return res.status(400).send({ error: "Invalid request body" });
   var goAhead = false;
   //creates a room code
-  while (!goAhead){
+  while (!goAhead) {
     const newRoomId = randomHex();
     goAhead = true;
-    for (var i = 0; i < rooms.length; i++){
-      if (newRoomId == rooms[i].id){
+    for (var i = 0; i < rooms.length; i++) {
+      if (newRoomId == rooms[i].id) {
         goAhead = false;
         break;
       }
@@ -370,7 +398,8 @@ router.post('/create-room', (req, res) => {
       questions: [],
       questionNumber: 0,
       pendingAnswers: [],
-      host: player
+      host: player,
+      createdAt: Date.now(),
     }
     if (goAhead) rooms.push(room);
     console.log("created room " + newRoomId);
@@ -384,9 +413,9 @@ router.post('/create-room', (req, res) => {
 
 const getPlayerWithId = (roomId, playerId) => {
   const room = getRoomWithId(roomId);
-  if(!room) return null;
-  for(var i = 0; i < room.players.length; i++){
-    if(room.players[i].id == playerId) return room.players[i];
+  if (!room) return null;
+  for (var i = 0; i < room.players.length; i++) {
+    if (room.players[i].id == playerId) return room.players[i];
   }
   return null;
 }
@@ -414,22 +443,32 @@ wss.on("connection", socket => {
   socket.on("message", message => {
     console.log("got message " + message);
     const data = JSON.parse(message);
-    clientId = data.clientId;
     roomId = data.roomId;
-    const player = getPlayerWithId(roomId, clientId);
     const room = getRoomWithId(roomId);
-    console.log(room);
-    console.log(roomId + " " + clientId + " " + player);
-    if(!player) return;
-    if(player.connection == null){
+    if (!room) return;
+    clientId = data.clientId;
+    let player: Player | null = null;
+    if (room.host.id == clientId) {
+      player = room.host;
+    } else {
+      player = getPlayerWithId(roomId, clientId);
+      if (!player) {
+        console.log("player not found");
+        return;
+      }
+    }
+    console.log(serializableRoom(room));
+    console.log(roomId + " " + clientId);
+    if (!player) return;
+    if (player.connection == null) {
       player.connection = socket;
       console.log("assigned connection to player " + clientId + " in room " + roomId);
     }
     console.log("processing message based on type...");
-    if(data.type == "submit-answer"){
+    if (data.type == "submit-answer") {
       // do something
     }
   })
 });
 
-module.exports = router;
+export default router;

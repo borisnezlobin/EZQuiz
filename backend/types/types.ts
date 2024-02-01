@@ -30,4 +30,5 @@ export type Room = {
     questions: Question[];
     pendingAnswers: PlayerAnswer[];
     questionNumber: number;
+    createdAt: number;
 }

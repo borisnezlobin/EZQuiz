@@ -2,10 +2,12 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import PlayerStats from "./PlayerStats";
 import CONFIG from "../../config";
+import type { Room, Player } from "../../types/game";
 
-const PlayerQuestionAnswer = ({ room, data, player }) => {
+const PlayerQuestionAnswer = ({ room, data, player }: { room: Room, data: any, player: Player }) => {
     const [answerText, setAnswerText] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const currentQuestion = room.questions[room.questionNumber - 1];
     
     const submitAnswer = () => {
         fetch(CONFIG.SERVER_URL + "/submit-answer", {
@@ -31,11 +33,11 @@ const PlayerQuestionAnswer = ({ room, data, player }) => {
     
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-            <h1 className="text-4xl">{data.question.question}</h1>
+            <h1 className="text-4xl">{currentQuestion.question}</h1>
             {!submitted ? (
                 <>
                     <div className="w-2/3 lg:w-1/3 flex flex-col gap-4 justify-start items-center pb-8">
-                        <p>Answer {data.username}'s question</p>
+                        <p>Answer {currentQuestion.submittedBy.username}'s question</p>
                         <textarea
                             className="w-full h-32 border-2 border-black rounded-md p-4"
                             value={answerText}
