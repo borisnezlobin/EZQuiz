@@ -5,7 +5,7 @@ import { RoomContext, UserContext } from "../../context.tsx";
 import GameState from "./enum.js";
 import PlayerNotStartedPage from "./playerNotStartedPage.tsx";
 import PlayerQuestionAnswer from "./PlayerQuestionAnswer.tsx";
-import PlayerResultsPage from "./PlayerResultsPage.js";
+import PlayerResultsPage from "./PlayerResultsPage.tsx";
 import PlayerEndGamePage from "./PlayerEndGamePage.js";
 import CONFIG from "../../config.js";
 import { Player, Room } from "../../types/game.ts";
@@ -40,9 +40,11 @@ const PlayerDash = ({ client }) => {
         }
 
         client.onmessage = (msg) => {
-            console.log("got a message! " + msg);
+            console.log("got a message! ");
+            console.log(msg);
             const data = JSON.parse(msg.data as string);
             if(data.type == "room-update"){
+                console.log(data.room);
                 setRoom(data.room as Room);
                 setUser(data.user as Player);
                 console.log("updated room!");

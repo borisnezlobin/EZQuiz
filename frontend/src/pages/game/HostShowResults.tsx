@@ -1,7 +1,10 @@
 import { ArrowRight } from "@phosphor-icons/react";
 import CONFIG from "../../config";
+import type { Room, Player } from "../../types/game";
 
-const HostShowResults = ({ room, player }) => {
+const HostShowResults = ({ room, player }: { room: Room, player: Player }) => {
+    const currentQuestion = room.questions[room.questionNumber - 1];
+
     // TODO: show top 5 from room.players
     var players = room.players.filter((player) => !player.isHost);
     players.sort((a, b) => {
@@ -11,7 +14,9 @@ const HostShowResults = ({ room, player }) => {
     return (
         <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
             <h1 className="text-6xl">Leaderboard</h1>
-            <p>Question {room.questionNumber}: {room.currentQuestion.question.question}</p>
+            <p className="text-xl absolute top-4 right-4 code pill">{room.questionNumber} / {room.questions.length}</p>
+            <p>{currentQuestion.question}</p>
+            <p>Answer: {currentQuestion.answer}</p>
             <hr className="w-2/3 lg:w-1/3" />
             <ol className="flex flex-col w-2/3 lg:w-1/3 justify-center items-center gap-4">
                 {players.map((player, index) => {
