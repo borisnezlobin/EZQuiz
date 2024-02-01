@@ -147,6 +147,8 @@ router.post("/next-question", (req, res) => {
   const host = room.host;
   if (!host) return res.status(404).send({ error: "Host not found" });
 
+  if(room.questions.length == 0) return;
+
   room.questions[room.questionNumber - 1].used = true;
   room.questionNumber += 1;
   // pop current question from questions list
@@ -155,7 +157,7 @@ router.post("/next-question", (req, res) => {
   //   return question.id != room.questions[room.questionNumber - 1].id;
   // });
   // TODO: game ended if all questions used up
-  if (room.questions.length == 0) {
+  if (room.questionNumber > room.questions.length) {
     // publish to all players that game has ended
     if (host.connection) {
       host.connection.send(JSON.stringify({
@@ -173,6 +175,7 @@ router.post("/next-question", (req, res) => {
         player.connection.send(JSON.stringify({
           type: "room-update",
           room: serializableRoom(room),
+          user: serializableUser(player),
         }));
         player.connection.send(JSON.stringify({
           type: "game-end",
@@ -180,6 +183,10 @@ router.post("/next-question", (req, res) => {
         }));
       }
     }
+
+    // delete room
+    rooms = rooms.filter((r) => r.id != room.id);
+
     return res.status(200).send({ success: true });
   }
 
@@ -206,6 +213,7 @@ router.post("/next-question", (req, res) => {
       player.connection.send(JSON.stringify({
         type: "room-update",
         room: serializableRoom(room),
+        user: serializableUser(player),
       }));
       player.connection.send(JSON.stringify({
         type: "show-question",
@@ -218,37 +226,39 @@ router.post("/next-question", (req, res) => {
   res.status(200).send({ success: true });
 });
 
+function serializableUser(user: Player): any {
+  return {
+    ...user,
+    connection: undefined, // remove the connection property
+  };
+}
+
 function serializableRoom(room: Room): any {
   // thanks copilot
   return {
     ...room,
     host: {
-      ...room.host,
-      connection: undefined, // remove the connection property
+      ...serializableUser(room.host),
     },
     players: room.players.map(player => ({
-      ...player,
-      connection: undefined, // remove the connection property
+      ...serializableUser(player),
     })),
     questions: room.questions.map(question => ({
       ...question,
       submittedBy: {
-        ...question.submittedBy,
-        connection: undefined, // remove the connection property
+        ...serializableUser(question.submittedBy),
       },
       answers: question.answers.map(answer => ({
         ...answer,
         player: {
-          ...answer.player,
-          connection: undefined, // remove the connection property
+          ...serializableUser(answer.player),
         },
       })),
     })),
     pendingAnswers: room.pendingAnswers.map(answer => ({
       ...answer,
       player: {
-        ...answer.player,
-        connection: undefined, // remove the connection property
+        ...serializableUser(answer.player),
       },
     })),
   };
@@ -296,20 +306,26 @@ router.post("/show-results", (req, res) => {
   const host = room.host;
   if (!host) return res.status(404).send({ error: "Host not found" });
 
+  const scored = {};
   for (var i = 0; i < room.pendingAnswers.length; i++) {
     const answer = room.pendingAnswers[i];
     const player = getPlayerWithId(room.id, answer.player.id);
     if (!player) continue;
     player.score += answer.score;
+    scored[player.id] = answer.score;
+  }
+
+  for(var i = 0; i < room.players.length; i++) {
     if (player.connection) {
       console.log("sending update to " + player.username);
       player.connection.send(JSON.stringify({
         type: "room-update",
         room: serializableRoom(room),
+        user: serializableUser(player),
       }));
       player.connection.send(JSON.stringify({
         type: "show-results",
-        pointsReceived: answer.score,
+        pointsReceived: scored[player.id],
         totalPoints: player.score,
       }));
     }
@@ -364,6 +380,7 @@ router.post("/start-game", (req, res) => {
       player.connection.send(JSON.stringify({
         type: "room-update",
         room: serializableRoom(room),
+        user: serializableUser(player),
       }));
       player.connection.send(JSON.stringify({
         type: "show-question",
