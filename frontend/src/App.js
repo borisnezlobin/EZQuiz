@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
 import JoinPage from "./pages/join";
-import { Providers } from "./context";
+import { Providers } from "./context.tsx";
 import HomePage from "./pages/home";
 import { Toaster } from 'react-hot-toast';
 import Playground from "./pages/playground";

@@ -30,6 +30,7 @@ type Room = {
     questions: Question[];
     pendingAnswers: PlayerAnswer[];
     questionNumber: number;
+    createdAt: number;
 }
 
 export type { Player, PlayerAnswer, Question, Room };

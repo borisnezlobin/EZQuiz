@@ -1,18 +1,17 @@
 import { useContext, useEffect, useState } from "react"
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import { useNavigate } from "react-router-dom";
-import { RoomContext, UserContext } from "../../context";
-import toast from "react-hot-toast";
-import Playground from "../playground";
-import GameState from "./enum";
-import PlayerNotStartedPage from "./playerNotStartedPage";
-import PlayerQuestionAnswer from "./PlayerQuestionAnswer";
-import PlayerResultsPage from "./PlayerResultsPage";
-import PlayerEndGamePage from "./PlayerEndGamePage";
-import CONFIG from "../../config";
+import { RoomContext, UserContext } from "../../context.tsx";
+import GameState from "./enum.js";
+import PlayerNotStartedPage from "./playerNotStartedPage.tsx";
+import PlayerQuestionAnswer from "./PlayerQuestionAnswer.tsx";
+import PlayerResultsPage from "./PlayerResultsPage.js";
+import PlayerEndGamePage from "./PlayerEndGamePage.js";
+import CONFIG from "../../config.js";
+import { Player, Room } from "../../types/game.ts";
 
 const PlayerDash = ({ client }) => {
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
     const { room, setRoom } = useContext(RoomContext);
     const [currentState, setCurrentState] = useState(GameState.NOT_STARTED);
     const [stateData, setStateData] = useState(null);
@@ -42,7 +41,12 @@ const PlayerDash = ({ client }) => {
 
         client.onmessage = (msg) => {
             console.log("got a message! " + msg);
-            const data = JSON.parse(msg.data);
+            const data = JSON.parse(msg.data as string);
+            if(data.type == "room-update"){
+                setRoom(data.room as Room);
+                setUser(data.user as Player);
+                console.log("updated room!");
+            }
             if(data.type == "start-game"){
                 // maybe unnecessary
             }
