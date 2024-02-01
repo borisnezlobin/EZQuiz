@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "pre-commit": "^1.2.2"
+  },
+  "scripts": {
+    "run-all": "echo 'Running all hooks...' && cd backend && npm run pc"
+  },
+  "pre-commit": [
+    "run-all"
+  ]
+}

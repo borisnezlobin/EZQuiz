@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "pc": "echo 'Running backend pre-commit hooks...' && npm run update-version",
     "update-version": "echo 'updating server version...' && node update-version.js",
     "pc-message": "echo 'Running backend pre-commit hooks...'",
     "start": "ts-node-esm ./bin/www.ts"
