@@ -2,6 +2,7 @@ import { ArrowLeft, Copy, Play } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import CONFIG from "../../config";
+import { Player } from "../../types/game";
 
 const HostNotStartedPage = ({ user, room }) => {
     const nav = useNavigate();
@@ -18,7 +19,7 @@ const HostNotStartedPage = ({ user, room }) => {
                     <h1 className="">{room.id}</h1>
                     <p className="code">{room.questions.length} Question{room.questions.length == 1 ? "" : "s"} Submitted</p>
                 </div>
-                <button className="w-full md:w-1/3 mb-8 text-center pill shadow-none relative group" onClick={() => {
+                <button className="w-full md:w-1/3 mb-8 text-center pill-interactive shadow-none relative group" onClick={() => {
                     window.navigator.clipboard.writeText(window.location.protocol + "//" + window.location.host + "/join/" + room.id);
                     toast.success("Copied to clipboard!");
                 }}>
@@ -27,7 +28,7 @@ const HostNotStartedPage = ({ user, room }) => {
                 </button>
                 {numPlayers > 0 ? <hr className="w-screen max-w-4/5" /> : <></>}
                 <p className="flex w-full flex-wrap items-center justify-center px-16 mt-4 gap-8">
-                    {room.players.map((player) => {
+                    {room.players.map((player: Player) => {
                         if(player.isHost) return;
                         return <span className="border border-gray-500 rounded-lg px-4 py-2">{player.username}</span>
                     })}
