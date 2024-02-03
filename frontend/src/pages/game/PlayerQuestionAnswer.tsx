@@ -3,13 +3,21 @@ import toast from "react-hot-toast";
 import PlayerStats from "./PlayerStats.tsx";
 import CONFIG from "../../config";
 import type { Room, Player } from "../../types/game";
+import { CircleNotch } from "@phosphor-icons/react";
 
 const PlayerQuestionAnswer = ({ room, data, player }: { room: Room, data: any, player: Player }) => {
     const [answerText, setAnswerText] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const currentQuestion = room.questions[room.questionNumber - 1];
 
     const submitAnswer = () => {
+        if (answerText === "") {
+            toast.error("Answer cannot be empty");
+            return;
+        }
+        setLoading(true);
         fetch(CONFIG.SERVER_URL + "/submit-answer", {
             body: JSON.stringify({
                 type: "submit-answer",
@@ -28,6 +36,8 @@ const PlayerQuestionAnswer = ({ room, data, player }: { room: Room, data: any, p
             } else {
                 toast.error("Error submitting answer");
             }
+
+            setLoading(false);
         });
     };
 
@@ -48,8 +58,12 @@ const PlayerQuestionAnswer = ({ room, data, player }: { room: Room, data: any, p
                         <button
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                             onClick={submitAnswer}
+                            disabled={loading}
                         >
                             Submit
+                            {loading && (
+                                <CircleNotch className="animate-spin" />
+                            )}
                         </button>
                     </>
                 ) : (

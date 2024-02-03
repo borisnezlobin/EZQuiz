@@ -6,7 +6,7 @@ import GameState from "./enum.js";
 import PlayerNotStartedPage from "./playerNotStartedPage.tsx";
 import PlayerQuestionAnswer from "./PlayerQuestionAnswer.tsx";
 import PlayerResultsPage from "./PlayerResultsPage.tsx";
-import PlayerEndGamePage from "./PlayerEndGamePage.js";
+import PlayerEndGamePage from "./PlayerEndGamePage.tsx";
 import CONFIG from "../../config.js";
 import { Player, Room } from "../../types/game.ts";
 
