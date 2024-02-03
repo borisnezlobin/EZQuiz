@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-
+import Confetti from "../../components/confetti";
 import { ArrowRight } from "@phosphor-icons/react";
 
 const HostEndGame = ({ room }) => {
@@ -53,6 +53,7 @@ const HostEndGame = ({ room }) => {
                     Exit Game <ArrowRight />
                 </button>
             </div>
+            <Confetti size="lg" />
         </div>
     )
 };
