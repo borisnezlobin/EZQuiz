@@ -4,20 +4,18 @@
  * Module dependencies.
  */
 
-import app from '../app.ts';
-import server from '../server.js';
-import debug from 'debug';
-
+import app from "../app";
+import server from "../server";
+import debug from "debug";
 
 /**
  * Create HTTP server.
  */
 
-server.on("request", app);
+// server.on("request", app);
 
-var port = normalizePort(process.env.PORT || '8000');
-app.set('port', port);
-
+var port = normalizePort(process.env.PORT || "8000");
+app.set("port", port);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -52,22 +50,20 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
       process.exit(1);
       break;
     default:
@@ -81,16 +77,14 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  if(addr === null) {
+  if (addr === null) {
     return;
   }
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }
 
 const serverPort = process.env.PORT || 8000;
 server.listen(serverPort, () => {
   console.log("server up? I guess? on port " + serverPort);
-})
+});

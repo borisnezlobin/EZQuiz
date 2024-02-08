@@ -1,9 +1,8 @@
 {
-    "compilerOptions": {
-      "jsx": "react-jsx",
-      "noEmit": true,
-      "allowImportingTsExtensions": true,
-      "module": "NodeNext",
-      "esModuleInterop": true,
-    },
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "outDir": "./dist", // if this fails because of a tsc error about like "@webgpu/types/dist version conflict" that seems unresolvable... slap a // @ts-ignore on that line... idk
+    "removeComments": false,
+    "sourceMap": true
   }
+} // this is a really really really long comment to demonstrate that if it exceeds the length, the last character isn't visible because it is overlapped by the scrollbar... it's visible behind the semi-trasparent part
