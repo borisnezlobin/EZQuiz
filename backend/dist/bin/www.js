@@ -13,7 +13,7 @@ var debug_1 = __importDefault(require("debug"));
 /**
  * Create HTTP server.
  */
-// server.on("request", app);
+server_1.default.on("request", app_1.default);
 var port = normalizePort(process.env.PORT || "8000");
 app_1.default.set("port", port);
 /**

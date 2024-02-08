@@ -12,7 +12,7 @@ import debug from "debug";
  * Create HTTP server.
  */
 
-// server.on("request", app);
+server.on("request", app);
 
 var port = normalizePort(process.env.PORT || "8000");
 app.set("port", port);

@@ -51,14 +51,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var verify_object_1 = require("../types/verify-object");
-// const WebSocketServer = require("ws").WebSocketServer;
+var ws_1 = __importDefault(require("ws"));
+var server_1 = __importDefault(require("../server"));
 var express_1 = __importDefault(require("express"));
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var version_1 = require("../version");
 var similarity_1 = require("./similarity");
 var router = express_1.default.Router();
-// const getSimilarities = require("./similarity").getSimilarities;
 router.get("/", function (req, res, next) {
     // but have you ever seen something this good?
     var html = fs_1.default.readFileSync(path_1.default.join(__dirname, "./status.html"), "utf8");
@@ -459,9 +459,6 @@ var getPlayerWithId = function (roomId, playerId) {
     }
     return null;
 };
-var ws_1 = __importDefault(require("ws"));
-// const wss = new WebSocket.Server({ port : '80', path: "/ws"});
-var server_1 = __importDefault(require("../server"));
 var wss = new ws_1.default.Server({
     server: server_1.default,
     perMessageDeflate: false,
