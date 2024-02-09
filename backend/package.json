@@ -6,7 +6,7 @@
     "pc": "echo 'Running backend pre-commit hooks...' && npm run update-version",
     "update-version": "echo 'updating server version...' && ts-node update-version.ts",
     "pc-message": "echo 'Running backend pre-commit hooks...'",
-    "prod": "node dist/app.js",
+    "prod": "node dist/bin/www.js",
     "build": "npx tsc",
     "start": "npx ts-node ./bin/www.ts"
   },
