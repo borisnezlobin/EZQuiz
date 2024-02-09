@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Backend Status</title>
+        <style>
+            /* import Inter */
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+            /* import Fira Code */
+            @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap");
+            body {
+                padding-top: 50px;
+                font-family: "Inter", sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 4rem;
+                color: #3c3c3c;
+            }
+            .code { font-family: "Fira Code", monospace; }
+            .big-text {
+                font-size: 2em;
+                font-weight: 800;
+                margin: 0 0.5em;
+            }
+            .info {
+                font-size: 0.8em;
+                font-weight: 500;
+                margin-bottom: 1em;
+                color: darkgrey;
+            }
+            h1 {
+                font-size: 3em;
+                font-weight: 800;
+                margin-bottom: 0.5em;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1>Backend is running!</h1>
+            <p class="info code">v{{ version }}</p>
+        </div>
+        <p>
+            There are currently
+            <span class="big-text code">{{ rooms }}</span> rooms and
+            <span class="big-text code">{{ players }}</span> players online.
+        </p>
+    </body>
+</html>
