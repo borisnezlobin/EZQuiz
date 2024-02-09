@@ -7,7 +7,7 @@
     "update-version": "echo 'updating server version...' && ts-node update-version.ts",
     "pc-message": "echo 'Running backend pre-commit hooks...'",
     "prod": "node dist/bin/www.js",
-    "build": "npx tsc",
+    "build": "npx tsc && cp routes/status.html dist/routes/status.html",
     "start": "npx ts-node ./bin/www.ts"
   },
   "pre-commit": ["pc-message", "update-version"],
