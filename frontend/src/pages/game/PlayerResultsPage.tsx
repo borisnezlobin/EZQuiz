@@ -1,19 +1,6 @@
+import ordinal from "ordinal";
 import { Player, Room } from "../../types/game";
 import PlayerStats from "./PlayerStats.tsx";
-
-const getPostfix = (num: number) => {
-  const digit = num % 10;
-  if (digit === 1) {
-    return "st";
-  }
-  if (digit === 2) {
-    return "nd";
-  }
-  if (digit === 3) {
-    return "rd";
-  }
-  return "th";
-};
 
 const PlayerResultsPage = ({
   data,
@@ -42,7 +29,7 @@ const PlayerResultsPage = ({
           You're in{" "}
           <span className="code text-2xl font-bold">
             {data.rank}
-            {getPostfix(data.rank)}
+            {ordinal(data.rank)}
           </span>{" "}
           place{data.rank < 3 ? "!" : ". Keep going!"}
         </p>
