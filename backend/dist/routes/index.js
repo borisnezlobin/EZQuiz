@@ -176,7 +176,8 @@ var findQuestionWithId = function (room, questionId) {
     console.log("finding question with id " + questionId);
     if (!room)
         return null;
-    console.log("room questions are " + JSON.stringify(room.questions));
+    console.log("room questions are " +
+        JSON.stringify(room.questions.map(function (q) { return serializableQuestion(q); })));
     for (var i = 0; i < room.questions.length; i++) {
         if (room.questions[i].id == questionId)
             return room.questions[i];
@@ -238,7 +239,6 @@ router.post("/next-question", function (req, res) {
         rooms = rooms.filter(function (r) { return r.id != room.id; });
         return res.status(200).send({ success: true });
     }
-    // room.currentQuestion = room.questions[Math.floor(Math.random() * room.questions.length)];
     room.pendingAnswers = [];
     var newQuestion = room.questions[room.questionNumber - 1];
     if (host.connection) {
@@ -277,6 +277,9 @@ function serializableRoom(room) {
     // thanks copilot
     return __assign(__assign({}, room), { host: __assign({}, serializableUser(room.host)), players: room.players.map(function (player) { return (__assign({}, serializableUser(player))); }), questions: room.questions.map(function (question) { return (__assign(__assign({}, question), { submittedBy: __assign({}, serializableUser(question.submittedBy)), answers: question.answers.map(function (answer) { return (__assign(__assign({}, answer), { player: __assign({}, serializableUser(answer.player)) })); }) })); }), pendingAnswers: room.pendingAnswers.map(function (answer) { return (__assign(__assign({}, answer), { player: __assign({}, serializableUser(answer.player)) })); }) });
 }
+function serializableQuestion(question) {
+    return __assign(__assign({}, question), { submittedBy: __assign({}, serializableUser(question.submittedBy)), answers: question.answers.map(function (answer) { return (__assign(__assign({}, answer), { player: __assign({}, serializableUser(answer.player)) })); }) });
+}
 router.post("/submit-answer", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var data, room, player, question, answer, host;
     var _a;
@@ -293,7 +296,7 @@ router.post("/submit-answer", function (req, res) { return __awaiter(void 0, voi
                 question = findQuestionWithId(room, data.id);
                 if (!question)
                     return [2 /*return*/, res.status(404).send({ error: "Question not found" })];
-                console.log("found question " + JSON.stringify(question));
+                console.log("found question " + JSON.stringify(serializableQuestion(question)));
                 _a = {
                     // id: question.id,
                     answer: data.answer,

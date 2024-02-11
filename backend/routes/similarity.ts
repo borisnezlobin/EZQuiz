@@ -1,13 +1,16 @@
+import {
+  UniversalSentenceEncoder,
+  load,
+} from "@tensorflow-models/universal-sentence-encoder";
 import "@tensorflow/tfjs";
-import use from "@tensorflow-models/universal-sentence-encoder";
 
 var loaded = false;
-let model;
+let model: UniversalSentenceEncoder;
 
 async function getSimilarities(answer, response) {
   if (!loaded) {
     console.log("loading model...");
-    model = await use.load();
+    model = await load();
     loaded = true;
     console.log("model loaded!");
   }
@@ -37,4 +40,4 @@ function cosineSimilarity(a, b) {
 
 console.log("complete");
 
-export { getSimilarities, cosineSimilarity };
+export { cosineSimilarity, getSimilarities };
