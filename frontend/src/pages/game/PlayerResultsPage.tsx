@@ -2,33 +2,54 @@ import { Player, Room } from "../../types/game";
 import PlayerStats from "./PlayerStats.tsx";
 
 const getPostfix = (num: number) => {
-    if (num === 1) {
-        return "st";
-    }
-    if (num === 2) {
-        return "nd";
-    }
-    if (num === 3) {
-        return "rd";
-    }
-    return "th";
-}
+  const digit = num % 10;
+  if (digit === 1) {
+    return "st";
+  }
+  if (digit === 2) {
+    return "nd";
+  }
+  if (digit === 3) {
+    return "rd";
+  }
+  return "th";
+};
 
-const PlayerResultsPage = ({ data, room, player }: { data: any, room: Room, player: Player }) => {
-    // get rank in room
-    data.rank = room.players.filter((p) => !p.isHost).sort((a, b) => b.score - a.score).findIndex((p) => p.id === player.id) + 1;
+const PlayerResultsPage = ({
+  data,
+  room,
+  player,
+}: {
+  data: any;
+  room: Room;
+  player: Player;
+}) => {
+  // get rank in room
+  data.rank =
+    room.players
+      .filter((p) => !p.isHost)
+      .sort((a, b) => b.score - a.score)
+      .findIndex((p) => p.id === player.id) + 1;
 
-    return (
-        <div className="w-full h-full min-w-screen min-h-screen gap-4 flex flex-col justify-center items-center">
-            <h1 className="text-6xl text-left">
-                {data.totalPoints} points<br />
-                <span className="text-lg text-green-800 font-bold">+ {data.pointsReceived}</span>
-            </h1>
-            <p className="text-2xl">You're in <span className="text-2xl code font-bold">{data.rank}{getPostfix(data.rank)}</span> place{data.rank < 3 ? "!" : ". Keep going!"}</p>
-            <PlayerStats />
-
-        </div>
-    )
-}
+  return (
+    <div className="min-w-screen flex h-full min-h-screen w-full flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-start gap-4">
+        <p className="text-6xl font-bold text-green-800">
+          + {data.pointsReceived}
+        </p>
+        <h2 className="font-bold">{data.totalPoints} points</h2>
+        <p className="text-2xl">
+          You're in{" "}
+          <span className="code text-2xl font-bold">
+            {data.rank}
+            {getPostfix(data.rank)}
+          </span>{" "}
+          place{data.rank < 3 ? "!" : ". Keep going!"}
+        </p>
+      </div>
+      <PlayerStats />
+    </div>
+  );
+};
 
 export default PlayerResultsPage;

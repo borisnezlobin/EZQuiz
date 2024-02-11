@@ -35,13 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cosineSimilarity = exports.getSimilarities = void 0;
-require("@tensorflow/tfjs");
-var universal_sentence_encoder_1 = __importDefault(require("@tensorflow-models/universal-sentence-encoder"));
+exports.getSimilarities = exports.cosineSimilarity = void 0;
+var universal_sentence_encoder_1 = require("@tensorflow-models/universal-sentence-encoder");
+// import "@tensorflow/tfjs";
 var loaded = false;
 var model;
 function getSimilarities(answer, response) {
@@ -52,7 +49,7 @@ function getSimilarities(answer, response) {
                 case 0:
                     if (!!loaded) return [3 /*break*/, 2];
                     console.log("loading model...");
-                    return [4 /*yield*/, universal_sentence_encoder_1.default.load()];
+                    return [4 /*yield*/, (0, universal_sentence_encoder_1.load)()];
                 case 1:
                     model = _a.sent();
                     loaded = true;
