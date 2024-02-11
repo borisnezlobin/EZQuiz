@@ -2,20 +2,7 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { RoomContext, UserContext } from "../../context.tsx";
 import Leaderboard from "./leaderboard.tsx";
-
-const getPostfix = (num: number) => {
-  const digit = num % 10;
-  if (digit === 1) {
-    return "st";
-  }
-  if (digit === 2) {
-    return "nd";
-  }
-  if (digit === 3) {
-    return "rd";
-  }
-  return "th";
-};
+import ordinal from "ordinal";
 
 const PlayerEndGamePage = ({ data, room, player }) => {
   const nav = useNavigate();
@@ -32,7 +19,7 @@ const PlayerEndGamePage = ({ data, room, player }) => {
     <div className="min-w-screen flex h-full min-h-screen w-full flex-col items-center justify-center gap-4 overflow-y-scroll">
       <h1 className="text-left text-6xl">
         {data.rank}
-        {getPostfix(data.rank)} place{data.rank < 4}!<br />
+        {ordinal(data.rank)} place{data.rank < 4}!<br />
         <span className="text-lg font-bold">{user.score} points</span>
       </h1>
 
